@@ -152,7 +152,7 @@ void play_game(void)
 		// button 1 has been pushed, we get BUTTON1_PUSHED, and so on.
 		ButtonState btn = button_pushed();
 
-		switch
+		// switch
 
 		if (btn == BUTTON0_PUSHED)
 		{
