@@ -174,7 +174,8 @@ void move_player(int8_t delta_row, int8_t delta_col)
 	// | 1. Remove the display of the player icon from the current       |
 	// |    location.     
 	// |      - You may find the function flash_player() useful.  
-	player_visible = false;    
+	player_visible = true; 
+	flash_player();   
 	// | 2. Calculate the new location of the player.                    |
 	// |      - You may find creating a function for this useful.        |
 
@@ -191,7 +192,7 @@ void move_player(int8_t delta_row, int8_t delta_col)
 	// |      - Once again, you may find the function flash_player()     |
 	// |        useful.
 	player_visible = true;
-	flash_player();                                                  |
+	//flash_player();                                                  
 	// | 5. Reset the icon flash cycle in the caller function (i.e.,     |
 	// |    play_game())                                                 |
 	// +-----------------------------------------------------------------+
