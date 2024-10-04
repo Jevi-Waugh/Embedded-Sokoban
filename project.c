@@ -166,7 +166,6 @@ void play_game(void)
 		// inputs.
 
 		/*USE SWITCH STATEMENT HERE*/
-
 		else if (btn == BUTTON1_PUSHED){
 			/*move the player down*/
 			move_player(-1, 0);
