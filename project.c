@@ -151,14 +151,24 @@ void play_game(void)
 		// 0 has been pushed, we get BUTTON0_PUSHED, and likewise, if
 		// button 1 has been pushed, we get BUTTON1_PUSHED, and so on.
 		ButtonState btn = button_pushed();
+		int serial_input;
+		if (serial_input_available())
+		{
+			// Terminal input is available, get the character.
+			serial_input = fgetc(stdin);
+		}
+		else{
+			serial_input = NULL;
+
+		}
 
 		// switch
 
-		if (btn == BUTTON0_PUSHED)
+		if (btn == BUTTON0_PUSHED || toupper(serial_input) == 'D')
 		{
 			// Move the player, see move_player(...) in game.c.
 			// Also remember to reset the flash cycle here.
-			// mobe_player(y, x)
+			// move_player(y, x)
 			move_player(0, 1);
 			flash_player();
 		}
@@ -166,17 +176,17 @@ void play_game(void)
 		// inputs.
 
 		/*USE SWITCH STATEMENT HERE*/
-		else if (btn == BUTTON1_PUSHED){
+		else if (btn == BUTTON1_PUSHED || toupper(serial_input) == 'S'){
 			/*move the player down*/
 			move_player(-1, 0);
 			flash_player();
 		}
-		else if (btn == BUTTON2_PUSHED){
+		else if (btn == BUTTON2_PUSHED || toupper(serial_input) == 'W'){
 			/*move the player UP*/
 			move_player(1,0);
 			flash_player();
 			}
-		else if (btn == BUTTON3_PUSHED){
+		else if (btn == BUTTON3_PUSHED || toupper(serial_input) == 'A'){
 			/*move the player LEFT*/
 			move_player(0,-1);
 			flash_player();
@@ -217,8 +227,15 @@ void handle_game_over(void)
 		// Check serial input.
 		if (toupper(serial_input) == 'R')
 		{
-			// <YOUR CODE HERE>
+			printf_P(PSTR("RESTARTING GAME..."));
+			break;
 		}
+		update_start_screen();
+		// else if (toupper(serial_input) == 'E'){
+		// 	printf_P(PSTR("GAME EXITED!"));
+
+		// 	break;
+		// }
 		// Now check for other possible inputs.
 		
 	}
