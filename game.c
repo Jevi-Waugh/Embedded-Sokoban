@@ -43,6 +43,12 @@ static uint8_t player_col;
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
+const char wall_messages [3][100] = {
+		"You've hit a wall!",
+		"No, You've collided against a wall",
+		"The wall is an enemy!"
+	};
+#define NULL_WALL_MESSAHES 3
 
 
 // ========================== GAME LOGIC FUNCTIONS ===========================
@@ -76,6 +82,9 @@ static void paint_square(uint8_t row, uint8_t col)
 // state, and renders the initial game display.
 void initialise_game(void)
 {
+	// Remember that I can't use TIME ON AVR
+	srand(time(NULL));
+	
 	// Short definitions of game objects used temporarily for constructing
 	// an easier-to-visualise game layout.
 	#define _	(ROOM)
@@ -159,6 +168,7 @@ void flash_player(void)
 // This function handles player movements.
 bool move_player(int8_t delta_row, int8_t delta_col)
 {
+	
 	//                    Implementation Suggestions
 	//                    ==========================
 	//
@@ -186,9 +196,10 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	uint8_t new_player_y = (player_row + (uint8_t)delta_row) % MATRIX_NUM_ROWS;
 	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
 	
-	
+	clear_terminal();
 	if (current_object == WALL){
-		printf_P(PSTR("You've hit a wall!"));
+		printf_P(PSTR((wall_messages[0])));
+		
 		return false;
 	}
 
@@ -199,8 +210,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	// |      - Once again, you may find the function flash_player()     |
 	// |        useful.
 	
-	flash_player();      
-	return true;                                            
+	                                           
 	// | 5. Reset the icon flash cycle in the caller function (i.e.,     |
 	// |    play_game())                                                 |
 	// +-----------------------------------------------------------------+
@@ -212,9 +222,6 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	// |    move validity - you do not want to reset icon flash cycle on |
 	// |    invalid moves.                                               |
 	
-
-	
-
 	// | 2. Modify this function to check if there is a wall at the      |
 	// |    target location.                                             |
 	// | 3. If the target location contains a wall, print one of your 3  |
@@ -222,6 +229,8 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	// |    move.                                                        |
 	// | 4. Otherwise make the move, clear the message area of the       |
 	// |    terminal and return a value indicating a valid move.         |
+	flash_player();      
+	return true; 
 	// +-----------------------------------------------------------------+
 	//
 	// +-----------------------------------------------------------------+
