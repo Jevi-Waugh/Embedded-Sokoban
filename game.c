@@ -157,7 +157,7 @@ void flash_player(void)
 }
 
 // This function handles player movements.
-void move_player(int8_t delta_row, int8_t delta_col)
+bool move_player(int8_t delta_row, int8_t delta_col)
 {
 	//                    Implementation Suggestions
 	//                    ==========================
@@ -181,9 +181,16 @@ void move_player(int8_t delta_row, int8_t delta_col)
 
 	/*Calculating new location and not allowing negative numbers*/
 	/*Mapping the moves to the location thus using modulus*/
-	uint8_t new_player_x = (player_col + (uint8_t)delta_col) % 16;
-	uint8_t new_player_y = (player_row + (uint8_t)delta_row) % 8;
+	/*Can't have moves outta bounds*/
+	uint8_t new_player_x = (player_col + (uint8_t)delta_col) % MATRIX_NUM_COLUMNS;
+	uint8_t new_player_y = (player_row + (uint8_t)delta_row) % MATRIX_NUM_ROWS;
+	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
 	
+	
+	if (current_object == WALL){
+		printf_P(PSTR("You've hit a wall!"));
+		return false;
+	}
 
 	// | 3. Update the player location (player_row and player_col).      |
 	player_col = new_player_x;
@@ -191,8 +198,9 @@ void move_player(int8_t delta_row, int8_t delta_col)
 	// | 4. Draw the player icon at the new player location.             |
 	// |      - Once again, you may find the function flash_player()     |
 	// |        useful.
-	player_visible = true;
-	flash_player();                                                  |
+	
+	flash_player();      
+	return true;                                            
 	// | 5. Reset the icon flash cycle in the caller function (i.e.,     |
 	// |    play_game())                                                 |
 	// +-----------------------------------------------------------------+
@@ -203,6 +211,10 @@ void move_player(int8_t delta_row, int8_t delta_col)
 	// | 1. Modify this function to return a flag/boolean for indicating |
 	// |    move validity - you do not want to reset icon flash cycle on |
 	// |    invalid moves.                                               |
+	
+
+	
+
 	// | 2. Modify this function to check if there is a wall at the      |
 	// |    target location.                                             |
 	// | 3. If the target location contains a wall, print one of your 3  |
