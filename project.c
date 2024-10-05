@@ -171,6 +171,7 @@ void play_game(void)
 			// move_player(y, x)
 			move_player(0, 1);
 			flash_player();
+			
 		}
 		// Now, repeat for the other buttons, and combine with serial
 		// inputs.
@@ -227,10 +228,10 @@ void handle_game_over(void)
 		// Check serial input.
 		if (toupper(serial_input) == 'R')
 		{
-			printf_P(PSTR("RESTARTING GAME..."));
-			break;
+		// 	printf_P(PSTR("RESTARTING GAME..."));
+		// 	break;
 		}
-		update_start_screen();
+		// update_start_screen();
 		// else if (toupper(serial_input) == 'E'){
 		// 	printf_P(PSTR("GAME EXITED!"));
 
