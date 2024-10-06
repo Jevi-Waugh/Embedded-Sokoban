@@ -43,7 +43,8 @@ static uint8_t player_col;
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
-#define NULL_WALL_MESSAHES 3
+
+#define NULL_WALL_MESSAGES 3
 
 
 // ========================== GAME LOGIC FUNCTIONS ===========================
@@ -73,6 +74,18 @@ static void paint_square(uint8_t row, uint8_t col)
 	}
 }
 
+void wall_message(){
+	int message_num = rand() % NULL_WALL_MESSAGES;
+	
+	const char *messages[3] = {
+		PSTR("YOU'VE HIT A WALL!"),
+		PSTR("THE WALL IS AN ENEMY! BEWARE1"),
+		PSTR("AVOID THE WALLS!")
+	};
+	
+	printf_P(messages[message_num]); 
+}
+
 // This function initialises the global variables used to store the game
 // state, and renders the initial game display.
 void initialise_game(void)
@@ -86,7 +99,7 @@ void initialise_game(void)
 	#define W	(WALL)
 	#define T	(TARGET)
 	#define B	(BOX)
-
+	
 	// The starting layout of level 1. In this array, the top row is the
 	// 0th row, and the bottom row is the 7th row. This makes it visually
 	// identical to how the pixels are oriented on the LED matrix, however
@@ -192,9 +205,9 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
 	
 	clear_terminal();
+	
 	if (current_object == WALL){
-		printf_P(PSTR("You've hit a wall"));
-		
+		wall_message();
 		return false;
 	}
 
