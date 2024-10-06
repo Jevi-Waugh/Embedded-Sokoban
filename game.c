@@ -87,18 +87,36 @@ void wall_message(){
 }
 
 void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_player_y){
+	//
+
+	//Modulus kinda works with right and up
+	// just with not left and down
+
+	//
+
+
+
+
+
+
+
 	//Moving to the right
 	if (move == 'D' && object == 'R'){
 		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
 		ledmatrix_update_pixel(new_player_y, new_player_x+1, COLOUR_BOX);
 		board[new_player_y][new_player_x] = ROOM;
-		board[new_player_y][new_player_x+1] = BOX;
+		board[(new_player_y)%MATRIX_NUM_ROWS][(new_player_x+1)% MATRIX_NUM_COLUMNS] = BOX;
+
+	
 	}
 	else if (move == 'D' && object == 'T'){
 		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
 		ledmatrix_update_pixel(new_player_y, new_player_x+1, COLOUR_DONE);
 		board[new_player_y][new_player_x] = ROOM;
-		board[new_player_y][new_player_x+1] = COLOUR_DONE;
+		//This is a bug, cant assign colour done here, but fine for now
+		// it has to be an object for e.g. target_acquired
+		//BUG!
+		board[(new_player_y)%MATRIX_NUM_ROWS][(new_player_x+1) % MATRIX_NUM_COLUMNS] = COLOUR_DONE;
 	}
 
 	
@@ -107,7 +125,7 @@ void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_play
 		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
 		ledmatrix_update_pixel(new_player_y+1, new_player_x, COLOUR_BOX);
 		board[new_player_y][new_player_x] = ROOM;
-		board[new_player_y+1][new_player_x] = BOX;
+		board[(new_player_y+1)%MATRIX_NUM_ROWS][(new_player_x)% MATRIX_NUM_COLUMNS] = BOX;
 	}
 	else if (move == 'W' && object == 'T'){
 		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
@@ -121,7 +139,7 @@ void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_play
 		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
 		ledmatrix_update_pixel(new_player_y-1, new_player_x, COLOUR_BOX);
 		board[new_player_y][new_player_x] = ROOM;
-		board[new_player_y-1][new_player_x] = BOX;
+		board[(new_player_y-1)%MATRIX_NUM_ROWS][(new_player_x)% MATRIX_NUM_COLUMNS] = BOX;
 	}
 	else if (move == 'S' && object == 'T'){
 		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
@@ -135,7 +153,7 @@ void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_play
 		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
 		ledmatrix_update_pixel(new_player_y, new_player_x-1, COLOUR_BOX);
 		board[new_player_y][new_player_x] = ROOM;
-		board[new_player_y][new_player_x-1] = BOX;
+		board[(new_player_y)%MATRIX_NUM_ROWS][(new_player_x-1)% MATRIX_NUM_COLUMNS] = BOX;
 	}
 	else if (move == 'A' && object == 'T'){
 		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
@@ -262,12 +280,17 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 	/*Can't have moves outta bounds*/
 	uint8_t new_player_x = (player_col + (uint8_t)delta_col) % MATRIX_NUM_COLUMNS;
 	uint8_t new_player_y = (player_row + (uint8_t)delta_row) % MATRIX_NUM_ROWS;
+
 	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
 
 	uint8_t next_object_right = board[new_player_y][new_player_x+1] & OBJECT_MASK;
 	uint8_t next_object_left = board[new_player_y][new_player_x-1] & OBJECT_MASK;
 	uint8_t next_object_up = board[new_player_y+1][new_player_x] & OBJECT_MASK;
 	uint8_t next_object_down = board[new_player_y-1][new_player_x] & OBJECT_MASK;
+
+	
+
+
 	
 	clear_terminal();
 	
