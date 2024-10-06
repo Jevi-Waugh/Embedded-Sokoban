@@ -169,7 +169,7 @@ void play_game(void)
 			// Move the player, see move_player(...) in game.c.
 			// Also remember to reset the flash cycle here.
 			// move_player(y, x)
-			move_player(0, 1);
+			move_player(0, 1, 'd');
 			flash_player();
 			
 		}
@@ -179,17 +179,17 @@ void play_game(void)
 		/*USE SWITCH STATEMENT HERE*/
 		else if (btn == BUTTON1_PUSHED || toupper(serial_input) == 'S'){
 			/*move the player down*/
-			move_player(-1, 0);
+			move_player(-1, 0, 's');
 			flash_player();
 		}
 		else if (btn == BUTTON2_PUSHED || toupper(serial_input) == 'W'){
 			/*move the player UP*/
-			move_player(1,0);
+			move_player(1,0, 'w');
 			flash_player();
 			}
 		else if (btn == BUTTON3_PUSHED || toupper(serial_input) == 'A'){
 			/*move the player LEFT*/
-			move_player(0,-1);
+			move_player(0,-1, 'a');
 			flash_player();
 			}
 
