@@ -43,11 +43,6 @@ static uint8_t player_col;
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
-const char wall_messages [3][100] = {
-		"You've hit a wall!",
-		"No, You've collided against a wall",
-		"The wall is an enemy!"
-	};
 #define NULL_WALL_MESSAHES 3
 
 
@@ -198,7 +193,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	
 	clear_terminal();
 	if (current_object == WALL){
-		printf_P(PSTR((wall_messages[0])));
+		printf_P(PSTR("You've hit a wall"));
 		
 		return false;
 	}
