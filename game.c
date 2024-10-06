@@ -174,7 +174,7 @@ void flash_player(void)
 }
 
 // This function handles player movements.
-bool move_player(int8_t delta_row, int8_t delta_col)
+bool move_player(int8_t delta_row, int8_t delta_col, char move)
 {
 	
 	//                    Implementation Suggestions
@@ -203,12 +203,112 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	uint8_t new_player_x = (player_col + (uint8_t)delta_col) % MATRIX_NUM_COLUMNS;
 	uint8_t new_player_y = (player_row + (uint8_t)delta_row) % MATRIX_NUM_ROWS;
 	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
+
+	uint8_t next_object_right = board[new_player_y][new_player_x+1] & OBJECT_MASK;
+	uint8_t next_object_left = board[new_player_y][new_player_x-1] & OBJECT_MASK;
+	uint8_t next_object_up = board[new_player_y+1][new_player_x] & OBJECT_MASK;
+	uint8_t next_object_down = board[new_player_y-1][new_player_x] & OBJECT_MASK;
 	
 	clear_terminal();
 	
 	if (current_object == WALL){
 		wall_message();
 		return false;
+	}
+	else if (current_object == BOX){
+		// TARGETS AREN'T WORKING ATM
+		if (toupper(move) == 'D'){
+			if (next_object_right == ROOM){
+				printf_P(PSTR("YOU CAN GO and move the box to the right"));
+				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+				ledmatrix_update_pixel(new_player_y, new_player_x+1, COLOUR_BOX);
+				//do the rest once this works
+			}
+			else if (next_object_right == BOX){
+				printf_P(PSTR("A box cannot be stacked on top of another box."));
+				return false;
+			}
+
+			else if (next_object_right == WALL){
+				printf_P(PSTR("A box cannot be pushed onto the wall."));
+				return false;
+			}
+			else if (next_object_right == TARGET){
+				printf_P(PSTR("You've put the box in the target"));
+				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+				ledmatrix_update_pixel(new_player_y, new_player_x+1, COLOUR_TARGET);
+			}
+		}
+
+		else if (toupper(move) == 'W'){
+			if (next_object_up == ROOM){
+				printf_P(PSTR("YOU CAN GO and move the box up"));
+				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+				ledmatrix_update_pixel(new_player_y+1, new_player_x, COLOUR_BOX);
+				//do the rest once this works
+			}
+			else if (next_object_up == BOX){
+				printf_P(PSTR("A box cannot be stacked on top of another box."));
+				return false;
+			}
+
+			else if (next_object_up == WALL){
+				printf_P(PSTR("A box cannot be pushed onto the wall."));
+				return false;
+			}
+			else if (next_object_up == TARGET){
+				printf_P(PSTR("You've put the box in the target"));
+				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+				ledmatrix_update_pixel(new_player_y+1, new_player_x, COLOUR_TARGET);
+			}
+		}
+
+		else if (toupper(move) == 'S'){
+			if (next_object_down == ROOM){
+				printf_P(PSTR("YOU CAN GO and move the box down"));
+				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+				ledmatrix_update_pixel(new_player_y-1, new_player_x, COLOUR_BOX);
+				//do the rest once this works
+			}
+			else if (next_object_down == BOX){
+				printf_P(PSTR("A box cannot be stacked on top of another box."));
+				return false;
+			}
+
+			else if (next_object_down== WALL){
+				printf_P(PSTR("A box cannot be pushed onto the wall."));
+				return false;
+			}
+			else if (next_object_down == TARGET){
+				printf_P(PSTR("You've put the box in the target down"));
+				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+				ledmatrix_update_pixel(new_player_y-1, new_player_x, COLOUR_TARGET);
+			}
+		}
+
+		else if (toupper(move) == 'A'){
+			if (next_object_left == ROOM){
+				printf_P(PSTR("YOU CAN GO and move the box to the left"));
+				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+				ledmatrix_update_pixel(new_player_y, new_player_x-1, COLOUR_BOX);
+				//do the rest once this works
+			}
+			else if (next_object_left == BOX){
+				printf_P(PSTR("A box cannot be stacked on top of another box."));
+				return false;
+			}
+			else if (next_object_left == WALL){
+				printf_P(PSTR("A box cannot be pushed onto the wall."));
+				return false;
+			}
+			else if (next_object_left == TARGET){
+				printf_P(PSTR("You've put the box in the target"));
+				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+				ledmatrix_update_pixel(new_player_y, new_player_x-1, COLOUR_TARGET);
+			}
+		}
+		
+	
 	}
 
 	// | 3. Update the player location (player_row and player_col).      |
@@ -238,7 +338,9 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	// | 4. Otherwise make the move, clear the message area of the       |
 	// |    terminal and return a value indicating a valid move.         |
 	flash_player();      
-	return true; 
+	return true;
+	
+	 
 	// +-----------------------------------------------------------------+
 	//
 	// +-----------------------------------------------------------------+
