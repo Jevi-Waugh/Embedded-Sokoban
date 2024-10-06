@@ -86,6 +86,65 @@ void wall_message(){
 	printf_P(messages[message_num]); 
 }
 
+void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_player_y){
+	//Moving to the right
+	if (move == 'D' && object == 'R'){
+		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+		ledmatrix_update_pixel(new_player_y, new_player_x+1, COLOUR_BOX);
+		board[new_player_y][new_player_x] = ROOM;
+		board[new_player_y][new_player_x+1] = BOX;
+	}
+	else if (move == 'D' && object == 'T'){
+		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+		ledmatrix_update_pixel(new_player_y, new_player_x+1, COLOUR_DONE);
+		board[new_player_y][new_player_x] = ROOM;
+		board[new_player_y][new_player_x+1] = COLOUR_DONE;
+	}
+
+	
+	//Moving Up
+	if (move == 'W' && object == 'R'){
+		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+		ledmatrix_update_pixel(new_player_y+1, new_player_x, COLOUR_BOX);
+		board[new_player_y][new_player_x] = ROOM;
+		board[new_player_y+1][new_player_x] = BOX;
+	}
+	else if (move == 'W' && object == 'T'){
+		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+		ledmatrix_update_pixel(new_player_y+1, new_player_x, COLOUR_DONE);
+		board[new_player_y][new_player_x] = ROOM;
+		board[new_player_y][new_player_x+1] = COLOUR_DONE;
+	}
+
+	//Moving Down
+	if (move == 'S' && object == 'R'){
+		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+		ledmatrix_update_pixel(new_player_y-1, new_player_x, COLOUR_BOX);
+		board[new_player_y][new_player_x] = ROOM;
+		board[new_player_y-1][new_player_x] = BOX;
+	}
+	else if (move == 'S' && object == 'T'){
+		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+		ledmatrix_update_pixel(new_player_y-1, new_player_x, COLOUR_DONE);
+		board[new_player_y][new_player_x] = ROOM;
+		board[new_player_y-1][new_player_x] = COLOUR_DONE;
+	}
+
+	//Moving to the left
+	if (move == 'A' && object == 'R'){
+		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+		ledmatrix_update_pixel(new_player_y, new_player_x-1, COLOUR_BOX);
+		board[new_player_y][new_player_x] = ROOM;
+		board[new_player_y][new_player_x-1] = BOX;
+	}
+	else if (move == 'A' && object == 'T'){
+		ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
+		ledmatrix_update_pixel(new_player_y, new_player_x-1, COLOUR_DONE);
+		board[new_player_y][new_player_x] = ROOM;
+		board[new_player_y][new_player_x-1] = COLOUR_DONE;
+	}
+
+}
 // This function initialises the global variables used to store the game
 // state, and renders the initial game display.
 void initialise_game(void)
@@ -173,6 +232,7 @@ void flash_player(void)
 	}
 }
 
+
 // This function handles player movements.
 bool move_player(int8_t delta_row, int8_t delta_col, char move)
 {
@@ -216,12 +276,12 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 		return false;
 	}
 	else if (current_object == BOX){
-		// TARGETS AREN'T WORKING ATM
+		
 		if (toupper(move) == 'D'){
 			if (next_object_right == ROOM){
 				printf_P(PSTR("YOU CAN GO and move the box to the right"));
-				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
-				ledmatrix_update_pixel(new_player_y, new_player_x+1, COLOUR_BOX);
+				update_moves('D', 'R', new_player_x, new_player_y);
+				
 				//do the rest once this works
 			}
 			else if (next_object_right == BOX){
@@ -235,17 +295,15 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 			}
 			else if (next_object_right == TARGET){
 				printf_P(PSTR("You've put the box in the target"));
-				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
-				ledmatrix_update_pixel(new_player_y, new_player_x+1, COLOUR_TARGET);
+				update_moves('D', 'T', new_player_x, new_player_y);
 			}
 		}
 
 		else if (toupper(move) == 'W'){
 			if (next_object_up == ROOM){
 				printf_P(PSTR("YOU CAN GO and move the box up"));
-				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
-				ledmatrix_update_pixel(new_player_y+1, new_player_x, COLOUR_BOX);
-				//do the rest once this works
+				update_moves('W', 'R', new_player_x, new_player_y);
+				
 			}
 			else if (next_object_up == BOX){
 				printf_P(PSTR("A box cannot be stacked on top of another box."));
@@ -258,17 +316,15 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 			}
 			else if (next_object_up == TARGET){
 				printf_P(PSTR("You've put the box in the target"));
-				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
-				ledmatrix_update_pixel(new_player_y+1, new_player_x, COLOUR_TARGET);
+				update_moves('W', 'T', new_player_x, new_player_y);
+				
 			}
 		}
 
 		else if (toupper(move) == 'S'){
 			if (next_object_down == ROOM){
 				printf_P(PSTR("YOU CAN GO and move the box down"));
-				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
-				ledmatrix_update_pixel(new_player_y-1, new_player_x, COLOUR_BOX);
-				//do the rest once this works
+				update_moves('S', 'R', new_player_x, new_player_y);
 			}
 			else if (next_object_down == BOX){
 				printf_P(PSTR("A box cannot be stacked on top of another box."));
@@ -281,16 +337,14 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 			}
 			else if (next_object_down == TARGET){
 				printf_P(PSTR("You've put the box in the target down"));
-				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
-				ledmatrix_update_pixel(new_player_y-1, new_player_x, COLOUR_TARGET);
+				update_moves('S', 'T', new_player_x, new_player_y);
 			}
 		}
 
 		else if (toupper(move) == 'A'){
 			if (next_object_left == ROOM){
 				printf_P(PSTR("YOU CAN GO and move the box to the left"));
-				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
-				ledmatrix_update_pixel(new_player_y, new_player_x-1, COLOUR_BOX);
+				update_moves('A', 'R', new_player_x, new_player_y);
 				//do the rest once this works
 			}
 			else if (next_object_left == BOX){
@@ -303,8 +357,7 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 			}
 			else if (next_object_left == TARGET){
 				printf_P(PSTR("You've put the box in the target"));
-				ledmatrix_update_pixel(new_player_y, new_player_x, COLOUR_BLACK);
-				ledmatrix_update_pixel(new_player_y, new_player_x-1, COLOUR_TARGET);
+				update_moves('A', 'T', new_player_x, new_player_y);
 			}
 		}
 		

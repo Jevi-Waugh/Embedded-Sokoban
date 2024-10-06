@@ -33,7 +33,8 @@
 /// Initialises the game.
 /// </summary>
 void initialise_game(void);
-
+void wall_message();
+void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_player_y);
 /// <summary>
 /// Moves the player based on row and column deltas.
 /// </summary>
