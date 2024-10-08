@@ -28,6 +28,7 @@
 #define COLOUR_BOX   	(COLOUR_ORANGE)
 #define COLOUR_TARGET	(COLOUR_RED)
 #define COLOUR_DONE  	(COLOUR_GREEN)
+#define PLAYER_ON_TARGET  	(COLOUR_DARK_GREEN | COLOUR_RED)
 
 /// <summary>
 /// Initialises the game.

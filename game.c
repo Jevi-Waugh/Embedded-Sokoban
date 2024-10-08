@@ -43,7 +43,6 @@ static uint8_t player_col;
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
-
 #define NULL_WALL_MESSAGES 3
 
 
@@ -91,14 +90,6 @@ void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_play
 
 	//Modulus kinda works with right and up
 	// just with not left and down
-
-	//
-
-
-
-
-
-
 
 	//Moving to the right
 	if (move == 'D' && object == 'R'){
@@ -241,7 +232,10 @@ void flash_player(void)
 	if (player_visible)
 	{
 		// The player is visible, paint it with COLOUR_PLAYER.
+		
+		
 		ledmatrix_update_pixel(player_row, player_col, COLOUR_PLAYER);
+		
 	}
 	else
 	{
@@ -281,15 +275,11 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 	uint8_t new_player_x = (player_col + (uint8_t)delta_col) % MATRIX_NUM_COLUMNS;
 	uint8_t new_player_y = (player_row + (uint8_t)delta_row) % MATRIX_NUM_ROWS;
 
+	uint8_t new_object_x = (new_player_x + (uint8_t)delta_col) % MATRIX_NUM_COLUMNS;;
+	uint8_t new_object_y = (new_player_y + (uint8_t)delta_row) % MATRIX_NUM_ROWS;
+
 	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
-
-	uint8_t next_object_right = board[new_player_y][new_player_x+1] & OBJECT_MASK;
-	uint8_t next_object_left = board[new_player_y][new_player_x-1] & OBJECT_MASK;
-	uint8_t next_object_up = board[new_player_y+1][new_player_x] & OBJECT_MASK;
-	uint8_t next_object_down = board[new_player_y-1][new_player_x] & OBJECT_MASK;
-
-	
-
+	uint8_t new_object_location = board[new_object_y][new_object_x]  & OBJECT_MASK;
 
 	
 	clear_terminal();
@@ -298,91 +288,63 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 		wall_message();
 		return false;
 	}
-	else if (current_object == BOX){
+	else if (current_object == BOX || current_object == (BOX | TARGET)){
+		// Everything else
+		// Check if the box can be moved
+		if (current_object == (BOX | TARGET)){
+			if (new_object_location == ROOM) {
+			// Move the box
+				
+				board[new_object_y][new_object_x] = TARGET;
+				board[new_player_y][new_player_x] = TARGET;
+
+				paint_square(new_object_y, new_object_x);  // Paint new box position
+				paint_square(new_player_y, new_player_x);   
+
+				printf("BOX MOVED FROM TARGET.\n");
+				flash_after_box_move = false;
+				
+			}
+			else if (new_object_location == WALL){
+				printf_P(PSTR("There's a wall there mate!"));
+				return false;
+			}
+		}
+		if (new_object_location == ROOM) {
+			// Move the box
+			board[new_object_y][new_object_x] = BOX;
+			board[new_player_y][new_player_x] = ROOM;
+
+			paint_square(new_object_y, new_object_x);  // Paint new box position
+            paint_square(new_player_y, new_player_x);   
+
+			printf("Box moved successfully.\n");
+		}
+		else if (new_object_location == WALL){
+				printf_P(PSTR("There's a wall there mate!"));
+				return false;
+		}
 		
-		if (toupper(move) == 'D'){
-			if (next_object_right == ROOM){
-				printf_P(PSTR("YOU CAN GO and move the box to the right"));
-				update_moves('D', 'R', new_player_x, new_player_y);
-				
-				//do the rest once this works
-			}
-			else if (next_object_right == BOX){
-				printf_P(PSTR("A box cannot be stacked on top of another box."));
-				return false;
-			}
-
-			else if (next_object_right == WALL){
-				printf_P(PSTR("A box cannot be pushed onto the wall."));
-				return false;
-			}
-			else if (next_object_right == TARGET){
-				printf_P(PSTR("You've put the box in the target"));
-				update_moves('D', 'T', new_player_x, new_player_y);
-			}
+		else if (new_object_location == TARGET){
+			printf_P(PSTR("You've put the box in the target"));
+			board[new_object_y][new_object_x] = (BOX | TARGET);
+			board[new_player_y][new_player_x] = ROOM;
+			paint_square(new_object_y, new_object_x);  // Paint new box position
+			paint_square(new_player_y, new_player_x);   
 		}
 
-		else if (toupper(move) == 'W'){
-			if (next_object_up == ROOM){
-				printf_P(PSTR("YOU CAN GO and move the box up"));
-				update_moves('W', 'R', new_player_x, new_player_y);
-				
-			}
-			else if (next_object_up == BOX){
-				printf_P(PSTR("A box cannot be stacked on top of another box."));
-				return false;
-			}
-
-			else if (next_object_up == WALL){
-				printf_P(PSTR("A box cannot be pushed onto the wall."));
-				return false;
-			}
-			else if (next_object_up == TARGET){
-				printf_P(PSTR("You've put the box in the target"));
-				update_moves('W', 'T', new_player_x, new_player_y);
-				
-			}
-		}
-
-		else if (toupper(move) == 'S'){
-			if (next_object_down == ROOM){
-				printf_P(PSTR("YOU CAN GO and move the box down"));
-				update_moves('S', 'R', new_player_x, new_player_y);
-			}
-			else if (next_object_down == BOX){
-				printf_P(PSTR("A box cannot be stacked on top of another box."));
-				return false;
-			}
-
-			else if (next_object_down== WALL){
-				printf_P(PSTR("A box cannot be pushed onto the wall."));
-				return false;
-			}
-			else if (next_object_down == TARGET){
-				printf_P(PSTR("You've put the box in the target down"));
-				update_moves('S', 'T', new_player_x, new_player_y);
-			}
-		}
-
-		else if (toupper(move) == 'A'){
-			if (next_object_left == ROOM){
-				printf_P(PSTR("YOU CAN GO and move the box to the left"));
-				update_moves('A', 'R', new_player_x, new_player_y);
-				//do the rest once this works
-			}
-			else if (next_object_left == BOX){
-				printf_P(PSTR("A box cannot be stacked on top of another box."));
-				return false;
-			}
-			else if (next_object_left == WALL){
-				printf_P(PSTR("A box cannot be pushed onto the wall."));
-				return false;
-			}
-			else if (next_object_left == TARGET){
-				printf_P(PSTR("You've put the box in the target"));
-				update_moves('A', 'T', new_player_x, new_player_y);
-			}
-		}
+		// else if (new_object_location == (BOX | TARGET)){
+		// 	board[new_object_y][new_object_x] = TARGET ;
+			
+		// 	board[new_player_y][new_player_x] = BOX;
+		// 	paint_square(new_object_y, new_object_x);
+		// 	paint_square(new_player_y, new_player_x);  
+		// 	printf_P(PSTR("mate!")); 
+		// 	//However, since the player would be on top of the target square immediately following the
+		// 	// move, it should flash between dark green and red.
+		// }
+		
+	
 		
 	
 	}
@@ -390,6 +352,7 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 	// | 3. Update the player location (player_row and player_col).      |
 	player_col = new_player_x;
 	player_row = new_player_y;
+	
 	// | 4. Draw the player icon at the new player location.             |
 	// |      - Once again, you may find the function flash_player()     |
 	// |        useful.

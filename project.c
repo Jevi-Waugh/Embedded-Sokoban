@@ -173,8 +173,6 @@ void play_game(void)
 			flash_player();
 			
 		}
-		// Now, repeat for the other buttons, and combine with serial
-		// inputs.
 
 		/*USE SWITCH STATEMENT HERE*/
 		else if (btn == BUTTON1_PUSHED || toupper(serial_input) == 'S'){
