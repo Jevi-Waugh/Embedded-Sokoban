@@ -244,7 +244,6 @@ void flash_player(void)
 	}
 }
 
-
 // This function handles player movements.
 bool move_player(int8_t delta_row, int8_t delta_col, char move)
 {
@@ -283,84 +282,7 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 
 	
 	clear_terminal();
-	
-	if (current_object == WALL){
-		wall_message();
-		return false;
-	}
-	else if (current_object == BOX || current_object == (BOX | TARGET)){
-		// Everything else
-		// Check if the box can be moved
-		if (current_object == (BOX | TARGET)){
-			if (new_object_location == ROOM) {
-			// Move the box
-				
-				board[new_object_y][new_object_x] = TARGET;
-				board[new_player_y][new_player_x] = TARGET;
-
-				paint_square(new_object_y, new_object_x);  // Paint new box position
-				paint_square(new_player_y, new_player_x);   
-
-				printf("BOX MOVED FROM TARGET.\n");
-				flash_after_box_move = false;
-				
-			}
-			else if (new_object_location == WALL){
-				printf_P(PSTR("There's a wall there mate!"));
-				return false;
-			}
-		}
-		if (new_object_location == ROOM) {
-			// Move the box
-			board[new_object_y][new_object_x] = BOX;
-			board[new_player_y][new_player_x] = ROOM;
-
-			paint_square(new_object_y, new_object_x);  // Paint new box position
-            paint_square(new_player_y, new_player_x);   
-
-			printf("Box moved successfully.\n");
-		}
-		else if (new_object_location == WALL){
-				printf_P(PSTR("There's a wall there mate!"));
-				return false;
-		}
-		
-		else if (new_object_location == TARGET){
-			printf_P(PSTR("You've put the box in the target"));
-			board[new_object_y][new_object_x] = (BOX | TARGET);
-			board[new_player_y][new_player_x] = ROOM;
-			paint_square(new_object_y, new_object_x);  // Paint new box position
-			paint_square(new_player_y, new_player_x);   
-		}
-
-		// else if (new_object_location == (BOX | TARGET)){
-		// 	board[new_object_y][new_object_x] = TARGET ;
-			
-		// 	board[new_player_y][new_player_x] = BOX;
-		// 	paint_square(new_object_y, new_object_x);
-		// 	paint_square(new_player_y, new_player_x);  
-		// 	printf_P(PSTR("mate!")); 
-		// 	//However, since the player would be on top of the target square immediately following the
-		// 	// move, it should flash between dark green and red.
-		// }
-		
-	
-		
-	
-	}
-
-	// | 3. Update the player location (player_row and player_col).      |
-	player_col = new_player_x;
-	player_row = new_player_y;
-	
-	// | 4. Draw the player icon at the new player location.             |
-	// |      - Once again, you may find the function flash_player()     |
-	// |        useful.
-	
-	                                           
-	// | 5. Reset the icon flash cycle in the caller function (i.e.,     |
-	// |    play_game())                                                 |
-	// +-----------------------------------------------------------------+
+		// +-----------------------------------------------------------------+
 	//
 	// +-----------------------------------------------------------------+
 	// |                      Game Logic - Walls                         |
@@ -376,6 +298,100 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 	// |    move.                                                        |
 	// | 4. Otherwise make the move, clear the message area of the       |
 	// |    terminal and return a value indicating a valid move.         |
+	if (current_object == WALL){
+		wall_message();
+		return false;
+	}
+	else if (current_object == BOX || current_object == (BOX | TARGET)){
+		// Everything else
+		// Check if the box can be moved
+		if (current_object == (BOX | TARGET)){
+			if (new_object_location == ROOM) {
+			// Move the box
+				board[new_object_y][new_object_x] = BOX;
+				board[new_player_y][new_player_x] = TARGET;
+
+				paint_square(new_object_y, new_object_x);  // Paint new box position
+				paint_square(new_player_y, new_player_x); 
+
+
+				//FIGURE THIS
+				//If there was a message displayed in the message area of the terminal, it must be cleared.
+				
+				clear_terminal();
+				printf("BOX MOVED FROM TARGET.\n");
+				
+			}
+			else if (new_object_location == WALL || new_object_location == BOX || new_object_location == (BOX | TARGET)){
+				switch (new_object_location)
+				{
+				case WALL:
+					printf_P(PSTR("There's a wall there mate!"));
+					return false;
+					break;
+				case BOX:
+					printf_P(PSTR("A box cannot be stacked on top of another box."));
+					return false;
+					break;
+				case (BOX | TARGET):
+					printf_P(PSTR("Target already placed"));
+					return false;
+					break;
+				}
+			}
+		}
+		else if (new_object_location == ROOM) {
+			// Move the box
+			board[new_object_y][new_object_x] = BOX;
+			board[new_player_y][new_player_x] = ROOM;
+
+			paint_square(new_object_y, new_object_x);  // Paint new box position
+            paint_square(new_player_y, new_player_x);   
+
+			printf("Box moved successfully.\n");
+		}
+		else if (new_object_location == WALL || new_object_location == BOX || new_object_location == (BOX | TARGET)){
+			switch (new_object_location)
+			{
+			case WALL:
+				printf_P(PSTR("There's a wall there mate!"));
+				return false;
+				break;
+			case BOX:
+				printf_P(PSTR("A box cannot be stacked on top of another box."));
+				return false;
+				break;
+			case (BOX | TARGET):
+					printf_P(PSTR("Target already placed"));
+					return false;
+					break;
+			}
+			
+		}
+		
+		else if (new_object_location == TARGET){
+			printf_P(PSTR("You've put the box in the target"));
+			board[new_object_y][new_object_x] = (BOX | TARGET);
+			board[new_player_y][new_player_x] = ROOM;
+			paint_square(new_object_y, new_object_x);  // Paint new box position
+			paint_square(new_player_y, new_player_x);   
+		}
+	
+	}
+
+	// | 3. Update the player location (player_row and player_col).      |
+	player_col = new_player_x;
+	player_row = new_player_y;
+	printf_P(PSTR("You've made a valid move!"));
+	
+	// | 4. Draw the player icon at the new player location.             |
+	// |      - Once again, you may find the function flash_player()     |
+	// |        useful.
+	
+	                                           
+	// | 5. Reset the icon flash cycle in the caller function (i.e.,     |
+	// |    play_game())                                                 |
+
 	flash_player();      
 	return true;
 	
