@@ -30,7 +30,7 @@
 #include "timer1.h"
 #include "timer2.h"
 
-
+#define MILLISECONDS 1000
 // Function prototypes - these are defined below (after main()) in the order
 // given here.
 void initialise_hardware(void);
@@ -141,8 +141,13 @@ void new_game(void)
 
 void play_game(void)
 {
-	uint32_t last_flash_time = get_current_time();
 
+	uint32_t last_flash_time = get_current_time();
+	uint32_t last_print_time = 0;
+	uint32_t start_time = get_current_time();  // Only record start time now
+    int32_t level_time;
+
+	
 	// We play the game until it's over.
 	while (!is_game_over())
 	{
@@ -150,6 +155,18 @@ void play_game(void)
 		// be NO_BUTTON_PUSHED if no button has been pushed. If button
 		// 0 has been pushed, we get BUTTON0_PUSHED, and likewise, if
 		// button 1 has been pushed, we get BUTTON1_PUSHED, and so on.
+		uint32_t curr_time = get_current_time();
+		level_time = (curr_time - start_time) / MILLISECONDS;
+		// oops was doing the opposite
+		// level_time = ((last_flash_time / MILLISECONDS) % 60) + 1;
+		// // adding a one because we cant have o seconds displayed, but not sure if i should or not.
+		
+		if (level_time != last_print_time) {
+            printf_P(PSTR("%d "), level_time);
+            last_print_time = level_time;
+        }
+		// elapsed_time = (get_current_time() - last_flash_time); // 200ms
+		
 		ButtonState btn = button_pushed();
 		int serial_input;
 		if (serial_input_available())
@@ -169,7 +186,7 @@ void play_game(void)
 			// Move the player, see move_player(...) in game.c.
 			// Also remember to reset the flash cycle here.
 			// move_player(y, x)
-			move_player(0, 1, 'd');
+			move_player(0, 1);
 			flash_player();
 			
 		}
@@ -177,17 +194,17 @@ void play_game(void)
 		/*USE SWITCH STATEMENT HERE*/
 		else if (btn == BUTTON1_PUSHED || toupper(serial_input) == 'S'){
 			/*move the player down*/
-			move_player(-1, 0, 's');
+			move_player(-1, 0);
 			flash_player();
 		}
 		else if (btn == BUTTON2_PUSHED || toupper(serial_input) == 'W'){
 			/*move the player UP*/
-			move_player(1,0, 'w');
+			move_player(1,0);
 			flash_player();
 			}
 		else if (btn == BUTTON3_PUSHED || toupper(serial_input) == 'A'){
 			/*move the player LEFT*/
-			move_player(0,-1, 'a');
+			move_player(0,-1);
 			flash_player();
 			}
 
@@ -201,6 +218,7 @@ void play_game(void)
 			// Update the most recent icon flash time.
 			last_flash_time = current_time;
 		}
+
 	}
 	// We get here if the game is over.
 }
