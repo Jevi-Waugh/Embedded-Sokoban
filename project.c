@@ -83,7 +83,6 @@ void start_screen(void)
 	// Change this to your name and student number. Remember to remove the
 	// chevrons - "<" and ">"!
 	printf_P(PSTR("CSSE2010/7201 Project by Jevi Waugh - 48829678"));
-
 	// Setup the start screen on the LED matrix.
 	setup_start_screen();
 

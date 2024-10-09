@@ -9,13 +9,13 @@
 #include <avr/interrupt.h>
 
 // Segment values for digits 0 to 9
-uint8_t seven_seg[10] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
+// uint8_t seven_seg[10] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
 
 // The number currently displayed
-volatile uint8_t number_to_display = 42; // Default to 42 for testing
+// volatile uint8_t number_to_display = 42; // Default to 42 for testing
 
 // Track which digit to display (0 = right, 1 = left)
-volatile uint8_t current_digit = 0;
+// volatile uint8_t current_digit = 0;
 
 void init_timer1(void)
 {
@@ -36,27 +36,27 @@ void init_timer1(void)
 	
 }
 
-ISR(TIMER1_COMPA_vect) {
-    // Timer 1 interrupt service routine to update seven-segment display
-    uint8_t value;
+// ISR(TIMER1_COMPA_vect) {
+//     // Timer 1 interrupt service routine to update seven-segment display
+//     uint8_t value;
 
-    // Determine the value to display on the current digit
-    if (current_digit == 0) {
-        value = number_to_display % 10; // Ones place
-    } else {
-        value = (number_to_display / 10) % 10; // Tens place
-    }
+//     // Determine the value to display on the current digit
+//     if (current_digit == 0) {
+//         value = number_to_display % 10; // Ones place
+//     } else {
+//         value = (number_to_display / 10) % 10; // Tens place
+//     }
 
-    // Display the current digit
-    PORTD = (current_digit == 0) ? (0 << PD2) : (1 << PD2); // Set PD2 to select right or left digit
-    PORTA = seven_seg[value]; // Set segment values
+//     // Display the current digit
+//     PORTD = digit << 2; // Set PD2 to select right or left digit
+//     PORTA = seven_seg[value]; // Set segment values
 
-    // Switch to the other digit for the next interrupt
-    current_digit = 1 - current_digit;
-}
+//     // Switch to the other digit for the next interrupt
+//     current_digit = 1 - current_digit;
+// }
 
-void display_digit(uint8_t number, uint8_t digit) {
-    // Directly control which digit is selected and set the segment value
-    PORTD = (digit == 0) ? (0 << PD2) : (1 << PD2); // Select digit
-    PORTA = seven_seg[number]; // Set segment values
-}
+// void display_digit(uint8_t number, uint8_t digit) {
+//     // Directly control which digit is selected and set the segment value
+//     PORTD = digit << 2; // Select digit
+//     PORTA = seven_seg[number]; // Set segment values
+// }

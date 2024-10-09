@@ -47,7 +47,7 @@ static bool player_visible;
 #define NULL_WALL_MESSAGES 3
 
 // Seven segment display - segment values for digits 0 to 9
-// uint8_t seven_seg[10] = { 63, 6, 91, 79, 102, 109, 125, 7, 127, 111 };
+uint8_t seven_seg[10] = { 63, 6, 91, 79, 102, 109, 125, 7, 127, 111 };
 
 // Step count variable
 volatile uint8_t step_count = 0;
@@ -435,8 +435,8 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	printf_P(PSTR("You've made a valid move!\n"));
 	steps = (steps + 1) % 100; // max steps is 99 on the Seven-segment display
 	printf_P(PSTR("STEPS: %d"), steps);
-	number_to_display = (number_to_display + 1) % 100; 
-	// seven_segment(steps);
+	// number_to_display = (number_to_display + 1) % 100; 
+	seven_segment(steps);
 	// | 4. Draw the player icon at the new player location.             |
 	// |      - Once again, you may find the function flash_player()     |
 	// |        useful.

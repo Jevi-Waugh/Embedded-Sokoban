@@ -28,11 +28,12 @@
 #define COLOUR_BOX   	(COLOUR_ORANGE)
 #define COLOUR_TARGET	(COLOUR_RED)
 #define COLOUR_DONE  	(COLOUR_GREEN)
-#define PLAYER_ON_TARGET  	(COLOUR_DARK_GREEN | COLOUR_RED)
 
 /// <summary>
 /// Initialises the game.
 /// </summary>
+void display_digit(uint8_t number, uint8_t digit) ;
+void seven_segment(uint8_t fixed_number);
 void initialise_game(void);
 void wall_message();
 void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_player_y);
@@ -41,7 +42,8 @@ void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_play
 /// </summary>
 /// <param name="delta_row">The row delta.</param>
 /// <param name="delta_col">The column delta.</param>
-bool move_player(int8_t delta_row, int8_t delta_col, char move);
+void check_surroundings(uint8_t new_object_location);
+bool move_player(int8_t delta_row, int8_t delta_col);
 
 /// <summary>
 /// Detects whether the game is over (i.e., current level solved).
