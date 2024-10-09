@@ -17,6 +17,7 @@
 #include <avr/pgmspace.h>
 #include "ledmatrix.h"
 #include "terminalio.h"
+#include <avr/io.h>
 
 
 // ========================== NOTE ABOUT MODULARITY ==========================
@@ -44,6 +45,46 @@ static uint8_t player_col;
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
 #define NULL_WALL_MESSAGES 3
+
+// Seven segment display - segment values for digits 0 to 9
+// uint8_t seven_seg[10] = { 63, 6, 91, 79, 102, 109, 125, 7, 127, 111 };
+
+// Step count variable
+volatile uint8_t step_count = 0;
+
+void display_digit(uint8_t number, uint8_t digit) 
+{
+	PORTD = digit << 2; // because of location of pin
+	PORTA = seven_seg[number];	// We assume digit is in range 0 to 9
+}
+
+void seven_segment(uint8_t fixed_number) {
+	
+    static uint8_t digit = 0; // Track which digit to display (0 = right, 1 = left)
+	
+    uint8_t value;
+	
+	// Extract the correct digit value to display
+	if (digit == 0) {
+		value = fixed_number % 10;  // Ones place
+	} else {
+		value = (fixed_number / 10) % 10;  // Tens place
+	}
+	
+
+    // Display the digit on the seven-segment display
+    display_digit(value, digit);
+
+    // Alternate between right and left digit for next update
+    digit = 1 - digit;
+
+    // Wait for timer 1 to reach output compare A value (1 ms delay)
+    while ((TIFR1 & (1 << OCF1A)) == 0) {
+        ; // Do nothing - wait for the bit to be set
+    }
+    // Clear the output compare flag by writing a 1 to it
+    TIFR1 &= (1 << OCF1A);
+}
 
 
 // ========================== GAME LOGIC FUNCTIONS ===========================
@@ -245,8 +286,13 @@ void flash_player(void)
 }
 
 // This function handles player movements.
-bool move_player(int8_t delta_row, int8_t delta_col, char move)
+bool move_player(int8_t delta_row, int8_t delta_col)
 {
+	DDRA = 0xFF;
+	DDRD = (1 << 2);
+	PORTA = 0x00;
+	PORTD = 0x00;
+	sei();
 	
 	//                    Implementation Suggestions
 	//                    ==========================
@@ -280,8 +326,12 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
 	uint8_t new_object_location = board[new_object_y][new_object_x]  & OBJECT_MASK;
 
+	static uint8_t steps = 0;
+
 	
 	clear_terminal();
+
+	// printf(PSTR());
 		// +-----------------------------------------------------------------+
 	//
 	// +-----------------------------------------------------------------+
@@ -319,7 +369,7 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 				//If there was a message displayed in the message area of the terminal, it must be cleared.
 				
 				clear_terminal();
-				printf("BOX MOVED FROM TARGET.\n");
+				printf(PSTR("BOX MOVED FROM TARGET.\n"));
 				
 			}
 			else if (new_object_location == WALL || new_object_location == BOX || new_object_location == (BOX | TARGET)){
@@ -382,8 +432,11 @@ bool move_player(int8_t delta_row, int8_t delta_col, char move)
 	// | 3. Update the player location (player_row and player_col).      |
 	player_col = new_player_x;
 	player_row = new_player_y;
-	printf_P(PSTR("You've made a valid move!"));
-	
+	printf_P(PSTR("You've made a valid move!\n"));
+	steps = (steps + 1) % 100; // max steps is 99 on the Seven-segment display
+	printf_P(PSTR("STEPS: %d"), steps);
+	number_to_display = (number_to_display + 1) % 100; 
+	// seven_segment(steps);
 	// | 4. Draw the player icon at the new player location.             |
 	// |      - Once again, you may find the function flash_player()     |
 	// |        useful.
