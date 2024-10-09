@@ -18,6 +18,7 @@
 #include "ledmatrix.h"
 #include "terminalio.h"
 #include <avr/io.h>
+#include "timer1.h"
 
 
 // ========================== NOTE ABOUT MODULARITY ==========================
@@ -47,44 +48,44 @@ static bool player_visible;
 #define NULL_WALL_MESSAGES 3
 
 // Seven segment display - segment values for digits 0 to 9
-uint8_t seven_seg[10] = { 63, 6, 91, 79, 102, 109, 125, 7, 127, 111 };
+// uint8_t seven_seg[10] = { 63, 6, 91, 79, 102, 109, 125, 7, 127, 111 };
 
-// Step count variable
-volatile uint8_t step_count = 0;
+// // Step count variable
+// volatile uint8_t step_count = 0;
 
-void display_digit(uint8_t number, uint8_t digit) 
-{
-	PORTD = digit << 2; // because of location of pin
-	PORTA = seven_seg[number];	// We assume digit is in range 0 to 9
-}
+// void display_digit(uint8_t number, uint8_t digit) 
+// {
+// 	PORTD = digit << 2; // because of location of pin
+// 	PORTA = seven_seg[number];	// We assume digit is in range 0 to 9
+// }
 
-void seven_segment(uint8_t fixed_number) {
+// void seven_segment(uint8_t fixed_number) {
 	
-    static uint8_t digit = 0; // Track which digit to display (0 = right, 1 = left)
+//     static uint8_t digit = 0; // Track which digit to display (0 = right, 1 = left)
 	
-    uint8_t value;
+//     uint8_t value;
 	
-	// Extract the correct digit value to display
-	if (digit == 0) {
-		value = fixed_number % 10;  // Ones place
-	} else {
-		value = (fixed_number / 10) % 10;  // Tens place
-	}
+// 	// Extract the correct digit value to display
+// 	if (digit == 0) {
+// 		value = fixed_number % 10;  // Ones place
+// 	} else {
+// 		value = (fixed_number / 10) % 10;  // Tens place
+// 	}
 	
 
-    // Display the digit on the seven-segment display
-    display_digit(value, digit);
+//     // Display the digit on the seven-segment display
+//     display_digit(value, digit);
 
-    // Alternate between right and left digit for next update
-    digit = 1 - digit;
+//     // Alternate between right and left digit for next update
+//     digit = 1 - digit;
 
-    // Wait for timer 1 to reach output compare A value (1 ms delay)
-    while ((TIFR1 & (1 << OCF1A)) == 0) {
-        ; // Do nothing - wait for the bit to be set
-    }
-    // Clear the output compare flag by writing a 1 to it
-    TIFR1 &= (1 << OCF1A);
-}
+//     // Wait for timer 1 to reach output compare A value (1 ms delay)
+//     while ((TIFR1 & (1 << OCF1A)) == 0) {
+//         ; // Do nothing - wait for the bit to be set
+//     }
+//     // Clear the output compare flag by writing a 1 to it
+//     TIFR1 &= (1 << OCF1A);
+// }
 
 
 // ========================== GAME LOGIC FUNCTIONS ===========================
@@ -292,7 +293,11 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	DDRD = (1 << 2);
 	PORTA = 0x00;
 	PORTD = 0x00;
+	
+	
 	sei();
+	// Fix bug left zero showing
+	// number_to_display = 0;
 	
 	//                    Implementation Suggestions
 	//                    ==========================
@@ -435,8 +440,8 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	printf_P(PSTR("You've made a valid move!\n"));
 	steps = (steps + 1) % 100; // max steps is 99 on the Seven-segment display
 	printf_P(PSTR("STEPS: %d"), steps);
-	// number_to_display = (number_to_display + 1) % 100; 
-	seven_segment(steps);
+	number_to_display = (number_to_display + 1) % 100; 
+	// seven_segment(steps);
 	// | 4. Draw the player icon at the new player location.             |
 	// |      - Once again, you may find the function flash_player()     |
 	// |        useful.

@@ -32,8 +32,8 @@
 /// <summary>
 /// Initialises the game.
 /// </summary>
-void display_digit(uint8_t number, uint8_t digit) ;
-void seven_segment(uint8_t fixed_number);
+// void display_digit(uint8_t number, uint8_t digit) ;
+// void seven_segment(uint8_t fixed_number);
 void initialise_game(void);
 void wall_message();
 void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_player_y);
