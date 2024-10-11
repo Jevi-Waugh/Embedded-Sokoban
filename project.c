@@ -220,6 +220,8 @@ void play_game(void)
 			last_flash_time = current_time;
 		}
 
+		// if delta steps na
+
 	}
 	// We get here if the game is over.
 }

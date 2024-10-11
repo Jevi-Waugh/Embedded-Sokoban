@@ -120,7 +120,7 @@ void wall_message(){
 	
 	const char *messages[3] = {
 		PSTR("YOU'VE HIT A WALL!"),
-		PSTR("THE WALL IS AN ENEMY! BEWARE1"),
+		PSTR("THE WALL IS AN ENEMY! BEWARE"),
 		PSTR("AVOID THE WALLS!")
 	};
 
@@ -292,12 +292,37 @@ void display_terminal_gameplay(){
 	int i,j;
 	for(i=0; i<= MATRIX_NUM_ROWS; i++){
 		for(j=0; j<= MATRIX_NUM_COLUMNS; j++){
-			if (board[i][j] == OBJECT_MASK)
-			move_terminal_cursor(10,5);
-			set_display_attribute(FG_GREEN)
+
+			switch (board[i][j])
+			{
+			case ROOM:
+				move_terminal_cursor(i+8,j+7);
+				set_display_attribute(BG_BLACK);
+				printf_P(PSTR("  "));
+				break;
+			case WALL:
+				move_terminal_cursor(i+8,j+7);
+				set_display_attribute(BG_YELLOW);
+				printf_P(PSTR("  "));
+				break;
+			case BOX:
+				move_terminal_cursor(i+8,j+7);
+				set_display_attribute(BG_MAGENTA);
+				printf_P(PSTR("  "));
+				break;
+			case TARGET:
+				move_terminal_cursor(i+8,j+7);
+				set_display_attribute(BG_GREEN);
+				printf_P(PSTR("  "));
+				break;
+			
+			default:
+				break;
+			
+			}	
 		}
-		
 	}
+	set_display_attribute(BG_BLACK);
 }
 // This function handles player movements.
 bool move_player(int8_t delta_row, int8_t delta_col)
@@ -350,7 +375,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	static uint8_t steps = 0;
 
 	
-	clear_terminal();
+	// clear_terminal();
 
 	// printf(PSTR());
 		// +-----------------------------------------------------------------+
@@ -469,6 +494,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	
 	// steps = (steps + 1) % 100; // max steps is 99 on the Seven-segment display
 	// printf_P(PSTR("STEPS: %d"), steps);
+	// cant overflow
 	number_to_display = (number_to_display + 1) % 100; 
 	// seven_segment(steps);
 	// | 4. Draw the player icon at the new player location.             |
