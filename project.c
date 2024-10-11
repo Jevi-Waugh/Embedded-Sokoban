@@ -146,7 +146,7 @@ void play_game(void)
 	uint32_t start_time = get_current_time();  // Only record start time now
     int32_t level_time;
 
-	
+	display_terminal_gameplay();
 	// We play the game until it's over.
 	while (!is_game_over())
 	{
@@ -163,7 +163,6 @@ void play_game(void)
 		if (level_time != last_print_time) {
 			move_terminal_cursor(5,4);
             printf_P(PSTR("Time elapsed: %d "), level_time);
-			
             last_print_time = level_time;
         }
 		// elapsed_time = (get_current_time() - last_flash_time); // 200ms
@@ -179,6 +178,8 @@ void play_game(void)
 			serial_input = NULL;
 
 		}
+
+		
 
 		// switch
 
@@ -220,7 +221,11 @@ void play_game(void)
 			last_flash_time = current_time;
 		}
 
-		// if delta steps na
+		// if (delta steps and move
+		// if (delta_steps > 0 and move_player is true)
+		//      10 ms
+			// update steps
+			// update terminal stuff
 
 	}
 	// We get here if the game is over.

@@ -85,6 +85,7 @@ void wall_message(){
 	};
 
 	move_terminal_cursor(6,4);
+	clear_to_end_of_line();
 	printf_P(messages[message_num]); 
 }
 
@@ -291,16 +292,19 @@ void reset_cursor_position(){
 //flashes player on terminal
 void flash_terminal_player(uint8_t player_x, uint8_t player_y, uint8_t old_player_x, uint8_t old_player_y){
 	
-	reset_cursor_position();
+	// reset_cursor_position();
+	move_terminal_cursor(8 + (MATRIX_NUM_ROWS - player_y), player_x+7);
 	show_cursor();
-	move_terminal_cursor(8 + (MATRIX_NUM_ROWS - player_y) ,player_x+7);
-	set_display_attribute(BG_WHITE);
+	set_display_attribute(BG_CYAN);
 	printf_P(PSTR("  "));
 	// be careful of 1 space and 2 spaces
 	// set_display_attribute(BG_BLACK);
 	// reset_cursor_position();
 	// move_terminal_cursor(8 + (MATRIX_NUM_ROWS - old_player_y) , old_player_x+7);
 	// printf_P(PSTR("  "));
+	
+	set_display_attribute(BG_BLACK);
+	move_terminal_cursor(8 + (MATRIX_NUM_ROWS - old_player_y), old_player_x+7);
 
 }
 
@@ -364,6 +368,9 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
 	uint8_t new_object_location = board[new_object_y][new_object_x]  & OBJECT_MASK;
 
+	uint8_t old_p_x;
+	uint8_t old_p_y;
+
 	static uint8_t steps = 0;
 	if (current_object == WALL){
 		wall_message();
@@ -390,6 +397,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 				// clear_terminal();
 				set_display_attribute(BG_BLACK);
 				move_terminal_cursor(6,4);
+				clear_to_end_of_line();
 				printf(PSTR("BOX MOVED FROM TARGET.\n"));
 				
 			}
@@ -398,16 +406,19 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 				{
 				case WALL:
 					move_terminal_cursor(6,4);
+					clear_to_end_of_line();
 					printf_P(PSTR("There's a wall there mate!"));
 					return false;
 					break;
 				case BOX:
 					move_terminal_cursor(6,4);
+					clear_to_end_of_line();
 					printf_P(PSTR("A box cannot be stacked on top of another box."));
 					return false;
 					break;
 				case (BOX | TARGET):
 					move_terminal_cursor(6,4);
+					clear_to_end_of_line();
 					printf_P(PSTR("Target already placed"));
 					return false;
 					break;
@@ -424,6 +435,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 			update_terminal_moves(board[new_object_y][new_object_x], new_object_y, new_object_x);
 			update_terminal_moves(board[new_player_y][new_player_x], new_player_y, new_player_x);
 			move_terminal_cursor(6,4);
+			clear_to_end_of_line();
 			printf("Box moved successfully.\n");
 		}
 		else if (new_object_location == WALL || new_object_location == BOX || new_object_location == (BOX | TARGET)){
@@ -431,16 +443,19 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 			{
 			case WALL:
 				move_terminal_cursor(6,4);
+				clear_to_end_of_line();
 				printf_P(PSTR("There's a wall there mate!"));
 				return false;
 				break;
 			case BOX:
 				move_terminal_cursor(6,4);
+				clear_to_end_of_line();
 				printf_P(PSTR("A box cannot be stacked on top of another box."));
 				return false;
 				break;
 			case (BOX | TARGET):
 				move_terminal_cursor(6,4);
+				clear_to_end_of_line();
 				printf_P(PSTR("Target already placed"));
 				return false;
 				break;
@@ -450,6 +465,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 		
 		else if (new_object_location == TARGET){
 			move_terminal_cursor(6,4);
+			clear_to_end_of_line();
 			printf_P(PSTR("You've put the box in the target"));
 			
 			board[new_object_y][new_object_x] = (BOX | TARGET);
@@ -464,13 +480,19 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	}
 
 	// | 3. Update the player location (player_row and player_col).      |
+	// for flashing player
+	old_p_x = player_col;
+	old_p_y = player_row;
+
 	player_col = new_player_x;
 	player_row = new_player_y;
 	// flash terminal player here
-	//flash_terminal_player(player_col, player_row, new_player_x, new_player_y);
+	// flash_terminal_player(player_col, player_row, old_p_x, old_p_y);
 	move_terminal_cursor(6,4);
 	
+	
 	if (new_object_location != TARGET){
+		clear_to_end_of_line();
 		printf_P(PSTR("You've made a valid move!\n"));
 	}
 	
