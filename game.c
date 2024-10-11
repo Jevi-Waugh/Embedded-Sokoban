@@ -290,36 +290,36 @@ void flash_player(void)
 void display_terminal_gameplay(){
 	// board
 	int i,j;
-	for(i=0; i<= MATRIX_NUM_ROWS; i++){
-		for(j=0; j<= MATRIX_NUM_COLUMNS; j++){
+	for(i=0; i< MATRIX_NUM_ROWS; i++){
+		for(j=0; j< MATRIX_NUM_COLUMNS; j++){
 
 			switch (board[i][j])
 			{
 			case ROOM:
-				move_terminal_cursor(i+8,j+7);
+				move_terminal_cursor(8 + (MATRIX_NUM_ROWS - i),j+7);
 				set_display_attribute(BG_BLACK);
 				printf_P(PSTR("  "));
 				break;
 			case WALL:
-				move_terminal_cursor(i+8,j+7);
+				move_terminal_cursor(8 + (MATRIX_NUM_ROWS - i),j+7);
 				set_display_attribute(BG_YELLOW);
 				printf_P(PSTR("  "));
 				break;
 			case BOX:
-				move_terminal_cursor(i+8,j+7);
+				move_terminal_cursor(8 + (MATRIX_NUM_ROWS - i),j+7);
 				set_display_attribute(BG_MAGENTA);
 				printf_P(PSTR("  "));
 				break;
 			case TARGET:
-				move_terminal_cursor(i+8,j+7);
+				move_terminal_cursor(8 + (MATRIX_NUM_ROWS - i),j+7);
 				set_display_attribute(BG_GREEN);
 				printf_P(PSTR("  "));
 				break;
-			
 			default:
 				break;
 			
 			}	
+			set_display_attribute(BG_BLACK);
 		}
 	}
 	set_display_attribute(BG_BLACK);
@@ -333,7 +333,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	PORTA = 0x00;
 	// try PORTA 0xFF To see if they will all be zero
 	PORTD = 0x00;
-	display_terminal_gameplay();
+	//display_terminal_gameplay();
 	
 	
 	sei();
@@ -494,7 +494,6 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	
 	// steps = (steps + 1) % 100; // max steps is 99 on the Seven-segment display
 	// printf_P(PSTR("STEPS: %d"), steps);
-	// cant overflow
 	number_to_display = (number_to_display + 1) % 100; 
 	// seven_segment(steps);
 	// | 4. Draw the player icon at the new player location.             |
