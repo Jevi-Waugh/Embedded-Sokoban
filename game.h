@@ -44,6 +44,9 @@ void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_play
 /// <param name="delta_col">The column delta.</param>
 void check_surroundings(uint8_t new_object_location);
 void display_terminal_gameplay();
+void reset_cursor_position();
+void flash_terminal_player(uint8_t player_x, uint8_t player_y, uint8_t old_player_x, uint8_t old_player_y);
+void update_terminal_moves(uint8_t object, uint8_t row, uint8_t col);
 bool move_player(int8_t delta_row, int8_t delta_col);
 
 /// <summary>

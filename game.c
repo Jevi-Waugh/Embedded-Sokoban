@@ -47,46 +47,6 @@ static uint8_t player_col;
 static bool player_visible;
 #define NULL_WALL_MESSAGES 3
 
-// Seven segment display - segment values for digits 0 to 9
-// uint8_t seven_seg[10] = { 63, 6, 91, 79, 102, 109, 125, 7, 127, 111 };
-
-// // Step count variable
-// volatile uint8_t step_count = 0;
-
-// void display_digit(uint8_t number, uint8_t digit) 
-// {
-// 	PORTD = digit << 2; // because of location of pin
-// 	PORTA = seven_seg[number];	// We assume digit is in range 0 to 9
-// }
-
-// void seven_segment(uint8_t fixed_number) {
-	
-//     static uint8_t digit = 0; // Track which digit to display (0 = right, 1 = left)
-	
-//     uint8_t value;
-	
-// 	// Extract the correct digit value to display
-// 	if (digit == 0) {
-// 		value = fixed_number % 10;  // Ones place
-// 	} else {
-// 		value = (fixed_number / 10) % 10;  // Tens place
-// 	}
-	
-
-//     // Display the digit on the seven-segment display
-//     display_digit(value, digit);
-
-//     // Alternate between right and left digit for next update
-//     digit = 1 - digit;
-
-//     // Wait for timer 1 to reach output compare A value (1 ms delay)
-//     while ((TIFR1 & (1 << OCF1A)) == 0) {
-//         ; // Do nothing - wait for the bit to be set
-//     }
-//     // Clear the output compare flag by writing a 1 to it
-//     TIFR1 &= (1 << OCF1A);
-// }
-
 
 // ========================== GAME LOGIC FUNCTIONS ===========================
 
@@ -287,6 +247,7 @@ void flash_player(void)
 	}
 }
 
+
 void display_terminal_gameplay(){
 	// board
 	int i,j;
@@ -312,7 +273,7 @@ void display_terminal_gameplay(){
 				break;
 			case TARGET:
 				move_terminal_cursor(8 + (MATRIX_NUM_ROWS - i),j+7);
-				set_display_attribute(BG_GREEN);
+				set_display_attribute(BG_RED);
 				printf_P(PSTR("  "));
 				break;
 			default:
@@ -323,6 +284,54 @@ void display_terminal_gameplay(){
 		}
 	}
 	set_display_attribute(BG_BLACK);
+}
+void reset_cursor_position(){
+	move_terminal_cursor(0,0);
+}
+//flashes player on terminal
+void flash_terminal_player(uint8_t player_x, uint8_t player_y, uint8_t old_player_x, uint8_t old_player_y){
+	
+	reset_cursor_position();
+	show_cursor();
+	move_terminal_cursor(8 + (MATRIX_NUM_ROWS - player_y) ,player_x+7);
+	set_display_attribute(BG_WHITE);
+	printf_P(PSTR("  "));
+	// set_display_attribute(BG_BLACK);
+	// reset_cursor_position();
+	// move_terminal_cursor(8 + (MATRIX_NUM_ROWS - old_player_y) , old_player_x+7);
+	// printf_P(PSTR("  "));
+
+}
+
+void update_terminal_moves(uint8_t object, uint8_t row, uint8_t col){
+	switch (object)
+	{
+	case ROOM /* constant-expression */:
+		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
+		set_display_attribute(BG_BLACK);
+		printf_P(PSTR(" "));
+		break;
+	case WALL /* constant-expression */:
+		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
+		set_display_attribute(BG_YELLOW);
+		printf_P(PSTR(" "));
+		break;
+	case BOX /* constant-expression */:
+		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
+		set_display_attribute(BG_MAGENTA);
+		printf_P(PSTR(" "));
+		break;
+	case TARGET /* constant-expression */:
+		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
+		set_display_attribute(BG_RED);
+		printf_P(PSTR(" "));
+		break;
+	
+	default:
+		break;
+	}
+	set_display_attribute(BG_BLACK);
+	
 }
 // This function handles player movements.
 bool move_player(int8_t delta_row, int8_t delta_col)
@@ -413,8 +422,9 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 
 				//FIGURE THIS
 				//If there was a message displayed in the message area of the terminal, it must be cleared.
-				
-				clear_terminal();
+				update_terminal_moves(TARGET, new_player_y, new_player_x);
+				update_terminal_moves(BOX, new_object_y, new_object_x);
+				// clear_terminal();
 				move_terminal_cursor(6,4);
 				printf(PSTR("BOX MOVED FROM TARGET.\n"));
 				
@@ -476,10 +486,17 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 		else if (new_object_location == TARGET){
 			move_terminal_cursor(6,4);
 			printf_P(PSTR("You've put the box in the target"));
+
+			
+			
+
+			
+			
 			board[new_object_y][new_object_x] = (BOX | TARGET);
 			board[new_player_y][new_player_x] = ROOM;
 			paint_square(new_object_y, new_object_x);  // Paint new box position
 			paint_square(new_player_y, new_player_x);   
+			// set_display_attribute(BG_BLACK);
 		}
 	
 	}
@@ -487,14 +504,19 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	// | 3. Update the player location (player_row and player_col).      |
 	player_col = new_player_x;
 	player_row = new_player_y;
+	// flash terminal player here
+	flash_terminal_player(player_col, player_row, new_player_x, new_player_y);
 	move_terminal_cursor(6,4);
+	
 	if (new_object_location != TARGET){
 		printf_P(PSTR("You've made a valid move!\n"));
 	}
 	
-	// steps = (steps + 1) % 100; // max steps is 99 on the Seven-segment display
-	// printf_P(PSTR("STEPS: %d"), steps);
-	number_to_display = (number_to_display + 1) % 100; 
+	steps++; //unbounded steps
+	move_terminal_cursor(7,5);
+	printf_P(PSTR("STEPS: %d"), steps);
+	// step should keep incrementing 
+	number_to_display = (number_to_display + 1) % 100; // max steps is 99 on the Seven-segment display
 	// seven_segment(steps);
 	// | 4. Draw the player icon at the new player location.             |
 	// |      - Once again, you may find the function flash_player()     |
