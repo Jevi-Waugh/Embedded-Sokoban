@@ -296,6 +296,7 @@ void flash_terminal_player(uint8_t player_x, uint8_t player_y, uint8_t old_playe
 	move_terminal_cursor(8 + (MATRIX_NUM_ROWS - player_y) ,player_x+7);
 	set_display_attribute(BG_WHITE);
 	printf_P(PSTR("  "));
+	// be careful of 1 space and 2 spaces
 	// set_display_attribute(BG_BLACK);
 	// reset_cursor_position();
 	// move_terminal_cursor(8 + (MATRIX_NUM_ROWS - old_player_y) , old_player_x+7);
@@ -321,9 +322,9 @@ void update_terminal_moves(uint8_t object, uint8_t row, uint8_t col){
 		set_display_attribute(BG_MAGENTA);
 		printf_P(PSTR(" "));
 		break;
-	case TARGET /* constant-expression */:
+	case (BOX | TARGET) /* constant-expression */:
 		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
-		set_display_attribute(BG_RED);
+		set_display_attribute(BG_GREEN);
 		printf_P(PSTR(" "));
 		break;
 	
@@ -346,24 +347,6 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	
 	
 	sei();
-	// Fix bug left zero showing
-	// number_to_display = 0;
-	
-	//                    Implementation Suggestions
-	//                    ==========================
-	//
-	//    Below are some suggestions for how to implement the first few
-	//    features. These are only suggestions, you are absolutely not
-	//   required to follow them if you know what you're doing, they're
-	//     just here to help you get started. The suggestions for the
-	//       earlier features are more detailed than the later ones.
-	//
-	// +-----------------------------------------------------------------+
-	// |            Move Player with Push Buttons/Terminal               |
-	// +-----------------------------------------------------------------+
-	// | 1. Remove the display of the player icon from the current       |
-	// |    location.     
-	// |      - You may find the function flash_player() useful.  
 	player_visible = true; 
 	flash_player();   
 	// | 2. Calculate the new location of the player.                    |
@@ -382,27 +365,6 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	uint8_t new_object_location = board[new_object_y][new_object_x]  & OBJECT_MASK;
 
 	static uint8_t steps = 0;
-
-	
-	// clear_terminal();
-
-	// printf(PSTR());
-		// +-----------------------------------------------------------------+
-	//
-	// +-----------------------------------------------------------------+
-	// |                      Game Logic - Walls                         |
-	// +-----------------------------------------------------------------+
-	// | 1. Modify this function to return a flag/boolean for indicating |
-	// |    move validity - you do not want to reset icon flash cycle on |
-	// |    invalid moves.                                               |
-	
-	// | 2. Modify this function to check if there is a wall at the      |
-	// |    target location.                                             |
-	// | 3. If the target location contains a wall, print one of your 3  |
-	// |    'hit wall' messages and return a value indicating an invalid |
-	// |    move.                                                        |
-	// | 4. Otherwise make the move, clear the message area of the       |
-	// |    terminal and return a value indicating a valid move.         |
 	if (current_object == WALL){
 		wall_message();
 		return false;
@@ -422,9 +384,11 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 
 				//FIGURE THIS
 				//If there was a message displayed in the message area of the terminal, it must be cleared.
-				update_terminal_moves(TARGET, new_player_y, new_player_x);
-				update_terminal_moves(BOX, new_object_y, new_object_x);
+				update_terminal_moves(board[new_player_y][new_player_x], new_player_y, new_player_x);
+				update_terminal_moves(board[new_object_y][new_object_x], new_object_y, new_object_x);
+
 				// clear_terminal();
+				set_display_attribute(BG_BLACK);
 				move_terminal_cursor(6,4);
 				printf(PSTR("BOX MOVED FROM TARGET.\n"));
 				
@@ -452,13 +416,14 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 		}
 		else if (new_object_location == ROOM) {
 			// Move the box
-			board[new_object_y][new_object_x] = BOX;
-			board[new_player_y][new_player_x] = ROOM;
+			board[new_object_y][new_object_x] = BOX; // NEW LOCATION
+			board[new_player_y][new_player_x] = ROOM; //PREVIOUS LOCATION
 
 			paint_square(new_object_y, new_object_x);  // Paint new box position
             paint_square(new_player_y, new_player_x);   
+			update_terminal_moves(board[new_object_y][new_object_x], new_object_y, new_object_x);
+			update_terminal_moves(board[new_player_y][new_player_x], new_player_y, new_player_x);
 			move_terminal_cursor(6,4);
-
 			printf("Box moved successfully.\n");
 		}
 		else if (new_object_location == WALL || new_object_location == BOX || new_object_location == (BOX | TARGET)){
@@ -486,16 +451,13 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 		else if (new_object_location == TARGET){
 			move_terminal_cursor(6,4);
 			printf_P(PSTR("You've put the box in the target"));
-
-			
-			
-
-			
 			
 			board[new_object_y][new_object_x] = (BOX | TARGET);
 			board[new_player_y][new_player_x] = ROOM;
 			paint_square(new_object_y, new_object_x);  // Paint new box position
 			paint_square(new_player_y, new_player_x);   
+			update_terminal_moves(board[new_object_y][new_object_x], new_object_y, new_object_x);
+			update_terminal_moves(board[new_player_y][new_player_x], new_player_y, new_player_x);
 			// set_display_attribute(BG_BLACK);
 		}
 	
@@ -505,7 +467,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	player_col = new_player_x;
 	player_row = new_player_y;
 	// flash terminal player here
-	flash_terminal_player(player_col, player_row, new_player_x, new_player_y);
+	//flash_terminal_player(player_col, player_row, new_player_x, new_player_y);
 	move_terminal_cursor(6,4);
 	
 	if (new_object_location != TARGET){
@@ -529,24 +491,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	flash_player();     
 	// set_display_attribute(TERM_RESET);
 	return true;
-	
-	 
-	// +-----------------------------------------------------------------+
-	//
-	// +-----------------------------------------------------------------+
-	// |                      Game Logic - Boxes                         |
-	// +-----------------------------------------------------------------+
-	// | 1. Modify this function to check if there is a box at the       |
-	// |    target location.                                             |
-	// | 2. If the target location contains a box, see if it can be      |
-	// |    pushed. If not, print a message and return a value           |
-	// |    indicating an invalid move.                                  |
-	// | 3. Otherwise push the box and move the player, then clear the   |
-	// |    message area of the terminal and return a valid indicating a |
-	// |    valid move.                                                  |
-	// +-----------------------------------------------------------------+
 
-	// <YOUR CODE HERE>
 }
 
 // This function checks if the game is over (i.e., the level is solved), and
