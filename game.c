@@ -42,6 +42,7 @@ static uint8_t board[MATRIX_NUM_ROWS][MATRIX_NUM_COLUMNS];
 // The location of the player.
 static uint8_t player_row;
 static uint8_t player_col;
+volatile uint8_t steps_glob;
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
@@ -370,8 +371,10 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 
 	uint8_t old_p_x;
 	uint8_t old_p_y;
-
 	static uint8_t steps = 0;
+
+
+	
 	if (current_object == WALL){
 		wall_message();
 		return false;
@@ -497,6 +500,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	}
 	
 	steps++; //unbounded steps
+	steps_glob = steps;
 	move_terminal_cursor(7,5);
 	printf_P(PSTR("STEPS: %d"), steps);
 	// step should keep incrementing 
@@ -521,5 +525,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 bool is_game_over(void)
 {
 	// <YOUR CODE HERE>.
+
+	
 	return false;
 }

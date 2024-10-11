@@ -29,6 +29,8 @@
 #define COLOUR_TARGET	(COLOUR_RED)
 #define COLOUR_DONE  	(COLOUR_GREEN)
 
+extern volatile uint8_t steps_glob;
+
 /// <summary>
 /// Initialises the game.
 /// </summary>

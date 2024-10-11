@@ -31,6 +31,7 @@
 #include "timer2.h"
 
 #define MILLISECONDS 1000
+int32_t level_time;
 // Function prototypes - these are defined below (after main()) in the order
 // given here.
 void initialise_hardware(void);
@@ -144,7 +145,7 @@ void play_game(void)
 	uint32_t last_flash_time = get_current_time();
 	uint32_t last_print_time = 0;
 	uint32_t start_time = get_current_time();  // Only record start time now
-    int32_t level_time;
+    
 
 	display_terminal_gameplay();
 	// We play the game until it's over.
@@ -163,6 +164,7 @@ void play_game(void)
 		if (level_time != last_print_time) {
 			move_terminal_cursor(5,4);
             printf_P(PSTR("Time elapsed: %d "), level_time);
+			
             last_print_time = level_time;
         }
 		// elapsed_time = (get_current_time() - last_flash_time); // 200ms
@@ -229,6 +231,7 @@ void play_game(void)
 
 	}
 	// We get here if the game is over.
+	// return level_time;
 }
 
 void handle_game_over(void)
@@ -262,6 +265,12 @@ void handle_game_over(void)
 		// 	break;
 		// }
 		// Now check for other possible inputs.
+
+		// uint16_t score = max(200 - steps_glob, 0) * 20 + max(1200 - level_time, 0);
+		// Score = max(200 – S, 0) × 20 + max(1200 – T, 0)
+
+
+	// if the number of objects that are targets equal the number of (box | target) then level is finished.
 		
 	}
 }
