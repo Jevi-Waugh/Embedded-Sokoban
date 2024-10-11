@@ -123,7 +123,8 @@ void wall_message(){
 		PSTR("THE WALL IS AN ENEMY! BEWARE1"),
 		PSTR("AVOID THE WALLS!")
 	};
-	
+
+	move_terminal_cursor(6,4);
 	printf_P(messages[message_num]); 
 }
 
@@ -286,6 +287,18 @@ void flash_player(void)
 	}
 }
 
+void display_terminal_gameplay(){
+	// board
+	int i,j;
+	for(i=0; i<= MATRIX_NUM_ROWS; i++){
+		for(j=0; j<= MATRIX_NUM_COLUMNS; j++){
+			if (board[i][j] == OBJECT_MASK)
+			move_terminal_cursor(10,5);
+			set_display_attribute(FG_GREEN)
+		}
+		
+	}
+}
 // This function handles player movements.
 bool move_player(int8_t delta_row, int8_t delta_col)
 {
@@ -295,6 +308,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	PORTA = 0x00;
 	// try PORTA 0xFF To see if they will all be zero
 	PORTD = 0x00;
+	display_terminal_gameplay();
 	
 	
 	sei();
@@ -376,6 +390,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 				//If there was a message displayed in the message area of the terminal, it must be cleared.
 				
 				clear_terminal();
+				move_terminal_cursor(6,4);
 				printf(PSTR("BOX MOVED FROM TARGET.\n"));
 				
 			}
@@ -383,14 +398,17 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 				switch (new_object_location)
 				{
 				case WALL:
+					move_terminal_cursor(6,4);
 					printf_P(PSTR("There's a wall there mate!"));
 					return false;
 					break;
 				case BOX:
+					move_terminal_cursor(6,4);
 					printf_P(PSTR("A box cannot be stacked on top of another box."));
 					return false;
 					break;
 				case (BOX | TARGET):
+					move_terminal_cursor(6,4);
 					printf_P(PSTR("Target already placed"));
 					return false;
 					break;
@@ -404,6 +422,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 
 			paint_square(new_object_y, new_object_x);  // Paint new box position
             paint_square(new_player_y, new_player_x);   
+			move_terminal_cursor(6,4);
 
 			printf("Box moved successfully.\n");
 		}
@@ -411,22 +430,26 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 			switch (new_object_location)
 			{
 			case WALL:
+				move_terminal_cursor(6,4);
 				printf_P(PSTR("There's a wall there mate!"));
 				return false;
 				break;
 			case BOX:
+				move_terminal_cursor(6,4);
 				printf_P(PSTR("A box cannot be stacked on top of another box."));
 				return false;
 				break;
 			case (BOX | TARGET):
-					printf_P(PSTR("Target already placed"));
-					return false;
-					break;
+				move_terminal_cursor(6,4);
+				printf_P(PSTR("Target already placed"));
+				return false;
+				break;
 			}
 			
 		}
 		
 		else if (new_object_location == TARGET){
+			move_terminal_cursor(6,4);
 			printf_P(PSTR("You've put the box in the target"));
 			board[new_object_y][new_object_x] = (BOX | TARGET);
 			board[new_player_y][new_player_x] = ROOM;
@@ -439,9 +462,13 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	// | 3. Update the player location (player_row and player_col).      |
 	player_col = new_player_x;
 	player_row = new_player_y;
-	printf_P(PSTR("You've made a valid move!\n"));
-	steps = (steps + 1) % 100; // max steps is 99 on the Seven-segment display
-	printf_P(PSTR("STEPS: %d"), steps);
+	move_terminal_cursor(6,4);
+	if (new_object_location != TARGET){
+		printf_P(PSTR("You've made a valid move!\n"));
+	}
+	
+	// steps = (steps + 1) % 100; // max steps is 99 on the Seven-segment display
+	// printf_P(PSTR("STEPS: %d"), steps);
 	number_to_display = (number_to_display + 1) % 100; 
 	// seven_segment(steps);
 	// | 4. Draw the player icon at the new player location.             |
@@ -452,7 +479,8 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	// | 5. Reset the icon flash cycle in the caller function (i.e.,     |
 	// |    play_game())                                                 |
 
-	flash_player();      
+	flash_player();     
+	// set_display_attribute(TERM_RESET);
 	return true;
 	
 	 

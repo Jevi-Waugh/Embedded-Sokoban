@@ -161,7 +161,9 @@ void play_game(void)
 		// // adding a one because we cant have o seconds displayed, but not sure if i should or not.
 		
 		if (level_time != last_print_time) {
-            printf_P(PSTR("%d "), level_time);
+			move_terminal_cursor(5,4);
+            printf_P(PSTR("Time elapsed: %d "), level_time);
+			
             last_print_time = level_time;
         }
 		// elapsed_time = (get_current_time() - last_flash_time); // 200ms
