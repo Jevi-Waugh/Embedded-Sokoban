@@ -43,6 +43,7 @@ static uint8_t board[MATRIX_NUM_ROWS][MATRIX_NUM_COLUMNS];
 static uint8_t player_row;
 static uint8_t player_col;
 volatile uint8_t steps_glob;
+int num_targets = 0;
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
@@ -50,7 +51,9 @@ static bool player_visible;
 
 
 // ========================== GAME LOGIC FUNCTIONS ===========================
-
+uint8_t get_board_layout(){
+	return board;
+}
 // This function paints a square based on the object(s) currently on it.
 static void paint_square(uint8_t row, uint8_t col)
 {
@@ -222,6 +225,18 @@ void initialise_game(void)
 		for (uint8_t col = 0; col < MATRIX_NUM_COLUMNS; col++)
 		{
 			paint_square(row, col);
+			
+		}
+	}
+
+	for (uint8_t row = 0; row < MATRIX_NUM_ROWS; row++)
+	{
+		for (uint8_t col = 0; col < MATRIX_NUM_COLUMNS; col++)
+		{
+			if (board[row][col] & TARGET){
+				//
+				num_targets++;
+			}
 		}
 	}
 }
@@ -325,6 +340,11 @@ void update_terminal_moves(uint8_t object, uint8_t row, uint8_t col){
 	case BOX /* constant-expression */:
 		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
 		set_display_attribute(BG_MAGENTA);
+		printf_P(PSTR(" "));
+		break;
+	case TARGET /* constant-expression */:
+		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
+		set_display_attribute(BG_RED);
 		printf_P(PSTR(" "));
 		break;
 	case (BOX | TARGET) /* constant-expression */:
@@ -525,6 +545,22 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 bool is_game_over(void)
 {
 	// <YOUR CODE HERE>.
+	// if the number of objects that are targets equal the number of (box | target) 
+	//then level is finished.
+	int i,j;
+	int count_targets = 0;
+	for(i = 0;  i < MATRIX_NUM_ROWS; i++){
+		for(j = 0;  j < MATRIX_NUM_COLUMNS; j++){
+			if (board[i][j] & (BOX | TARGET)){
+				count_targets++;
+			}
+		}
+	}
+
+	if (count_targets == num_targets){
+		// Level is finished
+		return true;
+	}
 
 	
 	return false;
