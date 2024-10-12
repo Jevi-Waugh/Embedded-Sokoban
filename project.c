@@ -126,6 +126,7 @@ void start_screen(void)
 
 void new_game(void)
 {
+	level_time = 0;
 	// Clear the serial terminal.
 	hide_cursor();
 	clear_terminal();
@@ -148,6 +149,7 @@ void play_game(void)
     
 
 	display_terminal_gameplay();
+	
 	// We play the game until it's over.
 	while (!is_game_over())
 	{
@@ -180,11 +182,6 @@ void play_game(void)
 			serial_input = NULL;
 
 		}
-
-		
-
-		// switch
-
 		if (btn == BUTTON0_PUSHED || toupper(serial_input) == 'D')
 		{
 			// Move the player, see move_player(...) in game.c.
@@ -231,14 +228,33 @@ void play_game(void)
 
 	}
 	// We get here if the game is over.
-	// return level_time;
+	// printf_P(PSTR("LEVEL COMPLETED"));
 }
 
+uint8_t min(uint8_t steps_score , int zero){
+	// testCondition ? expression1 : expression 2;
+	return (steps_score < zero) ? steps_score : zero;
+}
+
+uint8_t max(uint8_t time_score, int zero){
+	return (time_score > zero) ? time_score : zero;
+}
 void handle_game_over(void)
 {
-	move_terminal_cursor(14, 10);
-	printf_P(PSTR("GAME OVER"));
-	move_terminal_cursor(15, 10);
+	// Score = max(200 – S, 0) × 20 + max(1200 – T, 0)
+	uint8_t score = max(200 - steps_glob, 0) * 20 + max(1200 - level_time, 0);
+
+	move_terminal_cursor(17, 10);
+	printf_P(PSTR("LEVEL COMPLETED"));
+	move_terminal_cursor(18, 10);
+	printf_P(PSTR("STEPS TAKEN: %d"), steps_glob);
+	move_terminal_cursor(19, 10);
+	// amount of time in seconds (rounded down to the nearest second)
+	printf_P(PSTR("TIME TAKEN: %d"), level_time);
+	move_terminal_cursor(20, 10);
+	printf_P(PSTR("SCORE: %d"), score);
+
+	move_terminal_cursor(21, 10);
 	printf_P(PSTR("Press 'r'/'R' to restart, or 'e'/'E' to exit"));
 
 	// Do nothing until a valid input is made.
@@ -253,24 +269,26 @@ void handle_game_over(void)
 		}
 
 		// Check serial input.
-		if (toupper(serial_input) == 'R')
+		switch (toupper(serial_input))
 		{
-		// 	printf_P(PSTR("RESTARTING GAME..."));
-		// 	break;
-		}
-		// update_start_screen();
-		// else if (toupper(serial_input) == 'E'){
-		// 	printf_P(PSTR("GAME EXITED!"));
-
-		// 	break;
-		// }
-		// Now check for other possible inputs.
-
-		// uint16_t score = max(200 - steps_glob, 0) * 20 + max(1200 - level_time, 0);
-		// Score = max(200 – S, 0) × 20 + max(1200 – T, 0)
-
-
-	// if the number of objects that are targets equal the number of (box | target) then level is finished.
+		case 'R':
+			// printf_P(PSTR("RESTARTING GAME..."));
+			new_game();   
+            play_game();
+			// handle_game_over();
+			return;
+			break;
 		
+		case 'E':
+			// printf_P(PSTR("GAME EXITED!"));
+			setup_start_screen();
+			update_start_screen();
+			return;
+			break;
+		
+		default:
+			break;
+		}
+	
 	}
 }
