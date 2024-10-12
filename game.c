@@ -558,7 +558,7 @@ bool is_game_over(void)
 	}
 
 	if (count_targets == num_targets){
-		// Level is finished
+		// Level is finished and return true
 		return true;
 	}
 
