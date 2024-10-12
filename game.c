@@ -51,9 +51,7 @@ static bool player_visible;
 
 
 // ========================== GAME LOGIC FUNCTIONS ===========================
-uint8_t get_board_layout(){
-	return board;
-}
+
 // This function paints a square based on the object(s) currently on it.
 static void paint_square(uint8_t row, uint8_t col)
 {
