@@ -53,7 +53,7 @@ ISR(TIMER1_COMPA_vect) {
 
     // Display the current digit
     PORTD = current_digit << 2; // Set PD2 to select right or left digit
-    PORTA = seven_seg[value]; // Set segment values
+    PORTC = seven_seg[value]; // Set segment values
 
     // Switch to the other digit for the next interrupt
     current_digit = 1 - current_digit;
