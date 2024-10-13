@@ -75,6 +75,8 @@ void initialise_hardware(void)
 void start_screen(void)
 {
 	// Hide terminal cursor and set display mode to default.
+	// reset ssd to 0. its done again in new game when the player restarts the game as well
+	number_to_display = 0;
 	hide_cursor();
 	normal_display_mode();
 
@@ -133,6 +135,9 @@ void start_screen(void)
 
 void new_game()
 {
+	// reset ssd to 0
+	number_to_display = 0;
+
 	// Clear the serial terminal.
 	hide_cursor();
 	clear_terminal();
@@ -157,6 +162,7 @@ void play_game(void)
 
 	display_terminal_gameplay();
 	steps_glob = 0;
+	
 	// move_terminal_cursor(4,4);
     // printf_P(PSTR("Level: %d "), level);
 	
@@ -291,7 +297,7 @@ void handle_game_over(void)
 	uint8_t score = max(200 - steps_glob, 0) * 20 + max(1200 - level_time, 0);
 
 	move_terminal_cursor(17, 10);
-	printf_P(PSTR("LEVEL COMPLETED"));
+	printf_P(PSTR("LEVEL %d COMPLETED"), level);
 	move_terminal_cursor(18, 10);
 	printf_P(PSTR("STEPS TAKEN: %d"), steps_glob);
 	move_terminal_cursor(19, 10);

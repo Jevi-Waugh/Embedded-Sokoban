@@ -30,13 +30,14 @@
 #define COLOUR_DONE  	(COLOUR_GREEN)
 
 extern volatile uint8_t steps_glob;
+extern int level;
 
 /// <summary>
 /// Initialises the game.
 /// </summary>
 // void display_digit(uint8_t number, uint8_t digit) ;
 // void seven_segment(uint8_t fixed_number);
-void initialise_game(void);
+void initialise_game(int level);
 void wall_message();
 /// <summary>
 /// Moves the player based on row and column deltas.

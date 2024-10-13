@@ -44,6 +44,7 @@ static uint8_t player_row;
 static uint8_t player_col;
 volatile uint8_t steps_glob;
 int num_targets = 0;
+volatile int level = 1;
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
@@ -474,6 +475,8 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	
 	steps_glob++; //unbounded steps
 	// steps_glob = steps;
+	move_terminal_cursor(3,4);
+	printf_P(PSTR("Level: %d"), level);
 	move_terminal_cursor(7,5);
 	printf_P(PSTR("STEPS: %d"), steps_glob);
 	// step should keep incrementing 
