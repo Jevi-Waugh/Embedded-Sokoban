@@ -42,7 +42,7 @@ void init_timer2(void)
 	// SET DISPLAY TO ALL Ones
 	// DDRA = 0xFF;
 	// 1 output, 0 input
-	DDRD = (1 << 2);
+	DDRD |= (1 << 2);
 	// output 
 	PORTC = 0x00;
 	
