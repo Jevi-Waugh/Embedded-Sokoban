@@ -77,7 +77,7 @@ void init_timer1(void)
 		if(freq > 10000) {
 			freq = 10000;
 		}
-		loopy = 1;
+		loopy = 0;
 		
 	}
 		

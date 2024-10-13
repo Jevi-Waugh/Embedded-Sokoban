@@ -32,7 +32,7 @@
 
 #define MILLISECONDS 1000
 int32_t level_time = 0;
-int level = 1;
+
 // Function prototypes - these are defined below (after main()) in the order
 // given here.
 void initialise_hardware(void);
@@ -277,6 +277,8 @@ void play_game(void)
 		//      10 ms
 			// update steps
 			// update terminal stuff
+
+		//same logic for buzzer if 200ms then ...
 
 	}
 	// We get here if the game is over.

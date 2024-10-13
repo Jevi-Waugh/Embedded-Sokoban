@@ -30,7 +30,8 @@
 #define COLOUR_DONE  	(COLOUR_GREEN)
 
 extern volatile uint8_t steps_glob;
-extern int level;
+extern volatile level;
+
 
 /// <summary>
 /// Initialises the game.

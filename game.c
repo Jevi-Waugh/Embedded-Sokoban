@@ -19,6 +19,7 @@
 #include "ledmatrix.h"
 #include "terminalio.h"
 #include "timer1.h"
+#include "timer2.h"
 
 
 // ========================== NOTE ABOUT MODULARITY ==========================
@@ -45,6 +46,8 @@ static uint8_t player_col;
 volatile uint8_t steps_glob;
 int num_targets = 0;
 volatile int level = 1;
+
+
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
