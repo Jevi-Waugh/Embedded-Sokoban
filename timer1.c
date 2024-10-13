@@ -38,6 +38,12 @@ void init_timer1(void)
 
 	/* Ensure interrupt flag is cleared */
 	TIFR1 = (1<<OCF1A);
+	// 1 output, 0 input
+	DDRD = (1 << 2);
+	PORTC = 0x00;
+	// try PORTA 0xFF To see if they will all be zero
+	// PORTD = 0x00;
+	DDRC = 0xFF;
 }
 
 ISR(TIMER1_COMPA_vect) {

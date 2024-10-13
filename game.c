@@ -291,12 +291,6 @@ void update_terminal_moves(uint8_t object, uint8_t row, uint8_t col){
 // This function handles player movements.
 bool move_player(int8_t delta_row, int8_t delta_col)
 {
-	DDRA = 0xFF;
-	// 1 output, 0 input
-	DDRD = (1 << 2);
-	PORTA = 0x00;
-	// try PORTA 0xFF To see if they will all be zero
-	PORTD = 0x00;
 	//display_terminal_gameplay();
 	
 	
