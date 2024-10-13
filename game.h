@@ -38,7 +38,6 @@ extern volatile uint8_t steps_glob;
 // void seven_segment(uint8_t fixed_number);
 void initialise_game(void);
 void wall_message();
-void update_moves(char move, char object, uint8_t new_player_x, uint8_t new_player_y);
 /// <summary>
 /// Moves the player based on row and column deltas.
 /// </summary>
