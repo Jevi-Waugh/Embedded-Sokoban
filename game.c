@@ -47,6 +47,9 @@ volatile uint8_t steps_glob;
 int num_targets = 0;
 volatile int level = 1;
 
+volatile uint16_t freq;	// Hz
+volatile float dutycycle;	// %
+
 
 
 // A flag for keeping track of whether the player is currently visible.
@@ -463,6 +466,9 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	// for flashing player
 	old_p_x = player_col;
 	old_p_y = player_row;
+	start_tone();
+	//stop_tone();
+	// sound works just figure how to make it last 200 ms or smth
 
 	player_col = new_player_x;
 	player_row = new_player_y;
@@ -478,6 +484,8 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	
 	steps_glob++; //unbounded steps
 	// steps_glob = steps;
+	
+	
 	move_terminal_cursor(3,4);
 	printf_P(PSTR("Level: %d"), level);
 	move_terminal_cursor(7,5);

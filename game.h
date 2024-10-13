@@ -32,6 +32,9 @@
 extern volatile uint8_t steps_glob;
 extern volatile level;
 
+extern volatile uint16_t freq;	// Hz
+extern volatile float dutycycle;	// %
+
 
 /// <summary>
 /// Initialises the game.

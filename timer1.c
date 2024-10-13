@@ -18,10 +18,13 @@ uint16_t freq_to_clock_period(uint16_t freq) {
 uint16_t duty_cycle_to_pulse_width(float dutycycle, uint16_t clockperiod) {
 	return (dutycycle * clockperiod) / 100;
 }
+
+
 void init_timer1(void)
 {
-	uint16_t freq = 200;	// Hz
-	float dutycycle = 2;	// %
+	uint16_t freq = 500;	// Hz
+	float dutycycle = 50;	// %
+	
 	uint16_t clockperiod = freq_to_clock_period(freq);
 	uint16_t pulsewidth = duty_cycle_to_pulse_width(dutycycle, clockperiod);
 	// Setup timer 1.
@@ -67,37 +70,6 @@ void init_timer1(void)
 	// overflow (non-inverting mode).
 	TCCR1A = (1 << COM1B1) | (0 <<COM1B0) | (1 <<WGM11) | (1 << WGM10);
 	TCCR1B = (1 << WGM13) | (1 << WGM12);
-	int loopy = 1;
-	while(loopy) {
-		// Check the state of the buttons (on port C) every 100ms.
-		// _delay_ms(100);
-		
-		// if(PINC & 0x01) { // increase frequency by 5%, but highest frequency is 10000Hz
-		freq = freq*105UL/100UL;	// Constants made 32 bit to ensure 32 bit arithmetic
-		if(freq > 10000) {
-			freq = 10000;
-		}
-		loopy = 0;
-		
-	}
-		
-	// Work out the clock period and pulse width
-	clockperiod = freq_to_clock_period(freq);
-	pulsewidth = duty_cycle_to_pulse_width(dutycycle, clockperiod);
-	
-	// Update the PWM registers 
-	if(pulsewidth > 0) {
-		// The compare value is one less than the number of clock cycles in the pulse width
-		OCR1B = pulsewidth - 1;
-	} else {
-		OCR1B = 0;
-	}
-	// Note that a compare value of 0 results in special behaviour - see page 130 of the
-	// datasheet (2018 version)
-	
-	// Set the maximum count value for timer/counter 1 to be one less than the clockperiod
-	OCR1A = clockperiod - 1;
-	
 }
 
 void start_tone(){
@@ -110,3 +82,4 @@ void stop_tone(){
 	// so that it turns off.
 	TCCR1B &= ~((1 << CS12) | (1 << CS11) | (1 << CS10)); // ~(0b00000111) => 0b11111000
 }
+
