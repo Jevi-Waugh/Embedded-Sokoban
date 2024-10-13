@@ -214,8 +214,16 @@ void play_game(void)
 		
 		else if (toupper(serial_input) == 'P'){
 			game_paused = true;
-			// if attempted to pause the game
+			// printf_P(PSTR("Time elapsed: %d "), level_time);
+			reset_cursor_position();
+			clear_to_end_of_line();
+			printf_P(PSTR("GAME PAUSED!"));
+			uint32_t game_pause_time = get_current_time();
+			// LAST FLASH TIME Thingi
 			while(game_paused){
+				
+				// Game is currently paused
+				// see if the user types anything else 
 				if (serial_input_available())
 				{
 					// Terminal input is available, get the character.
@@ -224,7 +232,13 @@ void play_game(void)
 				else{
 					serial_input = NULL;
 					}
+		
 				if (toupper(serial_input) == 'P'){
+					reset_cursor_position();
+					clear_to_end_of_line();
+					printf_P(PSTR("GAME RESUMED!"));
+					start_time += get_current_time() - game_pause_time;
+					// LAST FLASH TIME Thingi
 					game_paused = false;
 				}
 					
