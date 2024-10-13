@@ -115,6 +115,8 @@ void start_screen(void)
 			{
 				break;
 			}
+
+			
 		}
 
 		// No button presses and no 's'/'S' typed into the terminal,
@@ -146,6 +148,7 @@ void play_game(void)
 	uint32_t last_flash_time = get_current_time();
 	uint32_t last_print_time = 0;
 	uint32_t start_time = get_current_time();  // Only record start time now
+	bool game_paused = false;
     
 
 	display_terminal_gameplay();
@@ -208,6 +211,25 @@ void play_game(void)
 			move_player(0,-1);
 			flash_player();
 			}
+		
+		else if (toupper(serial_input) == 'P'){
+			game_paused = true;
+			// if attempted to pause the game
+			while(game_paused){
+				if (serial_input_available())
+				{
+					// Terminal input is available, get the character.
+					serial_input = fgetc(stdin);
+				}
+				else{
+					serial_input = NULL;
+					}
+				if (toupper(serial_input) == 'P'){
+					game_paused = false;
+				}
+					
+			}
+		}
 
 		uint32_t current_time = get_current_time();
 		if (current_time >= last_flash_time + 200)
