@@ -15,9 +15,9 @@
 #include <string.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/io.h>
 #include "ledmatrix.h"
 #include "terminalio.h"
-#include <avr/io.h>
 #include "timer1.h"
 
 
@@ -93,7 +93,7 @@ void wall_message(){
 
 // This function initialises the global variables used to store the game
 // state, and renders the initial game display.
-void initialise_game(void)
+void initialise_game(int level)
 {
 	// Remember that I can't use TIME ON AVR
 	srand(time(NULL));
@@ -122,6 +122,20 @@ void initialise_game(void)
 		{ W, W, _, _, _, _, _, _, W, W, _, _, W, W, W, W }
 	};
 
+	// worry about optimising setting boards later
+	static const uint8_t lv2_layout[MATRIX_NUM_ROWS][MATRIX_NUM_COLUMNS] =
+	{
+		{ _, _, W, W, W, W, _, _, W, W, _, _, _, _, _, W },
+		{ _, _, W, _, _, W, _, W, W, _, _, _, _, _, B, _ },
+		{ _, _, W, _, B, W, W, W, _, _, T, W, _, T, W, W },
+		{ _, _, W, _, _, _, _, T, _, _, B, W, W, W, _, _ },
+		{ W, W, W, W, _, W, _, _, _, _, _, W, _, W, W, _ },
+		{ W, T, B, _, _, _, _, B, _, _, _, W, W, _, W, W },
+		{ W, _, _, _, T, _, _, _, _, _, _, B, T, _, _, _ },
+		{ W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W }
+		
+	};
+	
 	// Undefine the short game object names defined above, so that you
 	// cannot use use them in your own code. Use of single-letter names/
 	// constants is never a good idea.
@@ -131,8 +145,15 @@ void initialise_game(void)
 	#undef B
 
 	// Set the initial player location (for level 1).
-	player_row = 5;
-	player_col = 2;
+	if (level == 1){
+		player_row = 5;
+		player_col = 2;
+	}
+	else if (level == 2){
+		player_row = MATRIX_NUM_ROWS-2;
+		player_col = MATRIX_NUM_COLUMNS-1;
+	}
+	
 
 	// Make the player icon initially invisible.
 	player_visible = false;
@@ -143,8 +164,16 @@ void initialise_game(void)
 	{
 		for (uint8_t col = 0; col < MATRIX_NUM_COLUMNS; col++)
 		{
-			board[MATRIX_NUM_ROWS - 1 - row][col] =
+			if (level == 1){
+				board[MATRIX_NUM_ROWS - 1 - row][col] =
 				lv1_layout[row][col];
+			}
+			else if (level == 2){
+				board[MATRIX_NUM_ROWS - 1 - row][col] =
+				lv2_layout[row][col];
+			}
+			
+				
 		}
 	}
 
@@ -157,13 +186,14 @@ void initialise_game(void)
 			
 		}
 	}
-
+	num_targets = 0;
+	steps_glob = 0;
 	for (uint8_t row = 0; row < MATRIX_NUM_ROWS; row++)
 	{
 		for (uint8_t col = 0; col < MATRIX_NUM_COLUMNS; col++)
 		{
 			if (board[row][col] & TARGET){
-				//
+				// optimise this with another loop instead
 				num_targets++;
 			}
 		}
@@ -442,10 +472,10 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 		printf_P(PSTR("You've made a valid move!\n"));
 	}
 	
-	steps++; //unbounded steps
-	steps_glob = steps;
+	steps_glob++; //unbounded steps
+	// steps_glob = steps;
 	move_terminal_cursor(7,5);
-	printf_P(PSTR("STEPS: %d"), steps);
+	printf_P(PSTR("STEPS: %d"), steps_glob);
 	// step should keep incrementing 
 	number_to_display = (number_to_display + 1) % 100; // max steps is 99 on the Seven-segment display
 	// seven_segment(steps);
@@ -474,7 +504,7 @@ bool is_game_over(void)
 	int count_targets = 0;
 	for(i = 0;  i < MATRIX_NUM_ROWS; i++){
 		for(j = 0;  j < MATRIX_NUM_COLUMNS; j++){
-			if (board[i][j] & (BOX | TARGET)){
+			if ((board[i][j] & TARGET) && (board[i][j] & BOX)) {
 				count_targets++;
 			}
 		}

@@ -31,7 +31,8 @@
 #include "timer2.h"
 
 #define MILLISECONDS 1000
-int32_t level_time;
+int32_t level_time = 0;
+int level = 1;
 // Function prototypes - these are defined below (after main()) in the order
 // given here.
 void initialise_hardware(void);
@@ -115,6 +116,10 @@ void start_screen(void)
 			{
 				break;
 			}
+			else if ((serial_input) == '2'){
+				level = 2;
+				break;
+			}
 
 			
 		}
@@ -126,15 +131,14 @@ void start_screen(void)
 	}
 }
 
-void new_game(void)
+void new_game()
 {
-	level_time = 0;
 	// Clear the serial terminal.
 	hide_cursor();
 	clear_terminal();
 
 	// Initialise the game and display.
-	initialise_game();
+	initialise_game(level);
 
 	// Clear all button presses and serial inputs, so that potentially
 	// buffered inputs aren't going to make it to the new game.
@@ -152,6 +156,9 @@ void play_game(void)
     
 
 	display_terminal_gameplay();
+	steps_glob = 0;
+	// move_terminal_cursor(4,4);
+    // printf_P(PSTR("Level: %d "), level);
 	
 	// We play the game until it's over.
 	while (!is_game_over())
@@ -162,6 +169,7 @@ void play_game(void)
 		// button 1 has been pushed, we get BUTTON1_PUSHED, and so on.
 		uint32_t curr_time = get_current_time();
 		level_time = (curr_time - start_time) / MILLISECONDS;
+		
 		// oops was doing the opposite
 		// level_time = ((last_flash_time / MILLISECONDS) % 60) + 1;
 		// // adding a one because we cant have o seconds displayed, but not sure if i should or not.
@@ -219,6 +227,7 @@ void play_game(void)
 			clear_to_end_of_line();
 			printf_P(PSTR("GAME PAUSED!"));
 			uint32_t game_pause_time = get_current_time();
+			// uint32_t last_game_pause_time = get_current_time();
 			// LAST FLASH TIME Thingi
 			while(game_paused){
 				
@@ -238,6 +247,7 @@ void play_game(void)
 					clear_to_end_of_line();
 					printf_P(PSTR("GAME RESUMED!"));
 					start_time += get_current_time() - game_pause_time;
+					last_flash_time += get_current_time() - game_pause_time;
 					// LAST FLASH TIME Thingi
 					game_paused = false;
 				}
@@ -277,7 +287,7 @@ uint8_t max(uint8_t time_score, int zero){
 }
 void handle_game_over(void)
 {
-	// Score = max(200 – S, 0) × 20 + max(1200 – T, 0)
+	// Score = max(200 - S, 0) * 20 + max(1200 - T, 0)
 	uint8_t score = max(200 - steps_glob, 0) * 20 + max(1200 - level_time, 0);
 
 	move_terminal_cursor(17, 10);
@@ -308,17 +318,19 @@ void handle_game_over(void)
 		switch (toupper(serial_input))
 		{
 		case 'R':
-			// printf_P(PSTR("RESTARTING GAME..."));
-			new_game();   
-            play_game();
-			// handle_game_over();
+			// Restarting Game
 			return;
 			break;
 		
 		case 'E':
-			// printf_P(PSTR("GAME EXITED!"));
-			setup_start_screen();
-			update_start_screen();
+			// Game exited
+			initialise_hardware();
+			start_screen();
+			return;
+			break;
+		case 'N':
+			// New game
+			level = 2;
 			return;
 			break;
 		
