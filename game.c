@@ -466,9 +466,22 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	// for flashing player
 	old_p_x = player_col;
 	old_p_y = player_row;
+	// Sounds must be tones (not clicks) in the range 20Hz to 5kHz.
 	start_tone();
 	//stop_tone();
 	// sound works just figure how to make it last 200 ms or smth
+
+	/*
+	 Will implement the 3 tones for each of the following
+	 1. Player being moved
+	 2. Invalid move
+	 3. Box pushed
+	 Constraints
+	 1. Pressing the “q”/“Q” key on the terminal should toggle the mute state of the game
+	 2. If the Game Pause feature is implemented, no sound should play while the game is paused, however
+		  playing sounds must resume where they were left off when unpaused. 
+	 
+	*/
 
 	player_col = new_player_x;
 	player_row = new_player_y;
