@@ -158,6 +158,7 @@ void play_game(void)
 	uint32_t last_print_time = 0;
 	uint32_t start_time = get_current_time();  // Only record start time now
 	bool game_paused = false;
+	bool game_muted = false;
     
 
 	display_terminal_gameplay();
@@ -198,6 +199,13 @@ void play_game(void)
 		else{
 			serial_input = NULL;
 
+		}
+		if (toupper(serial_input) == 'q'){
+			// Mute the sounds
+			// this won't be enough because it can be turned back on 
+			// as soon as a move happens
+			game_muted = true;
+			// stop_tone();
 		}
 		if (btn == BUTTON0_PUSHED || toupper(serial_input) == 'D')
 		{
