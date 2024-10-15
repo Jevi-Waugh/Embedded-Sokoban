@@ -44,23 +44,31 @@ static uint8_t board[MATRIX_NUM_ROWS][MATRIX_NUM_COLUMNS];
 // The location of the player.
 static uint8_t player_row;
 static uint8_t player_col;
-volatile uint8_t steps_glob;
+volatile uint16_t steps_glob;
 int num_targets = 0;
 volatile int level = 1;
 
 volatile uint16_t freq;	// Hz
 volatile float dutycycle;	// %
 
+uint32_t last_target_area_flash_time;
+uint8_t new_object_location;
+uint8_t new_object_x;
+uint8_t new_object_y;
+
 
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
 static bool target_visible;
+bool box_pushed_on_target;
 #define NULL_WALL_MESSAGES 3
 
 
 // ========================== GAME LOGIC FUNCTIONS ===========================
-
+void reset_animation_display(uint8_t new_object_y, uint8_t new_object_x){
+	paint_square(new_object_y, new_object_x);
+}
 // This function paints a square based on the object(s) currently on it.
 static void paint_square(uint8_t row, uint8_t col)
 {
@@ -240,6 +248,10 @@ void flash_target_square(){
 	for (i=0; i< MATRIX_NUM_ROWS; i++){
 		for (j=0; j< MATRIX_NUM_COLUMNS; j++){
 			//DONT FORGET TO include BOX AS WELL
+			if (i == player_row && j == player_col)
+			{
+				continue;
+			}
 			if (board[i][j] == TARGET){
 				if(target_visible){
 					ledmatrix_update_pixel(i, j, COLOUR_TARGET);
@@ -252,7 +264,23 @@ void flash_target_square(){
 
 	}
 }
+// not done
+void get_location_matrix(uint8_t y, uint8_t x){
+	//get the location of the player and the target from the matrix
+	//board[new_object_y][new_object_x] = (BOX | TARGET);
+	int num_area_squares = 9;
+	int i;
+	uint16_t target_area[9][2] = { {y+1,x-1}, {y+1,x}, {y+1,x+1},
+						   {y,x-1}, {y,x}, {y,x+1},
+						   {y-1,x-1}, {y-1,x}, {y-1,x+1}
+						};
 
+	for (i=0;i< num_area_squares;i++){
+		ledmatrix_update_pixel(target_area[i][0], target_area[i][1], COLOUR_GREEN);
+		
+	}
+
+}
 
 void display_terminal_gameplay(){
 	// board
@@ -291,10 +319,12 @@ void display_terminal_gameplay(){
 	}
 	set_display_attribute(BG_BLACK);
 }
+
 void reset_cursor_position(){
 	move_terminal_cursor(0,0);
 }
 //flashes player on terminal
+//not done
 void flash_terminal_player(uint8_t player_x, uint8_t player_y, uint8_t old_player_x, uint8_t old_player_y){
 	
 	// reset_cursor_position();
@@ -357,6 +387,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	sei();
 	player_visible = true; 
 	target_visible = true;
+	
 	flash_player();   
 	// | 2. Calculate the new location of the player.                    |
 	// |      - You may find creating a function for this useful.        |
@@ -367,18 +398,19 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	uint8_t new_player_x = (player_col + (uint8_t)delta_col) % MATRIX_NUM_COLUMNS;
 	uint8_t new_player_y = (player_row + (uint8_t)delta_row) % MATRIX_NUM_ROWS;
 
-	uint8_t new_object_x = (new_player_x + (uint8_t)delta_col) % MATRIX_NUM_COLUMNS;;
-	uint8_t new_object_y = (new_player_y + (uint8_t)delta_row) % MATRIX_NUM_ROWS;
+	new_object_x = (new_player_x + (uint8_t)delta_col) % MATRIX_NUM_COLUMNS;;
+	new_object_y = (new_player_y + (uint8_t)delta_row) % MATRIX_NUM_ROWS;
 
 	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
-	uint8_t new_object_location = board[new_object_y][new_object_x]  & OBJECT_MASK;
+	new_object_location = board[new_object_y][new_object_x]  & OBJECT_MASK;
 
 	uint8_t old_p_x;
 	uint8_t old_p_y;
-	static uint8_t steps = 0;
-
 
 	
+
+
+	box_pushed_on_target = false;
 	if (current_object == WALL){
 		wall_message();
 		return false;
@@ -405,6 +437,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 				set_display_attribute(BG_BLACK);
 				move_terminal_cursor(6,4);
 				clear_to_end_of_line();
+				generate_music(PUSHING_BOX);
 				printf(PSTR("BOX MOVED FROM TARGET.\n"));
 				
 			}
@@ -443,6 +476,8 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 			update_terminal_moves(board[new_player_y][new_player_x], new_player_y, new_player_x);
 			move_terminal_cursor(6,4);
 			clear_to_end_of_line();
+			generate_music(PUSHING_BOX);
+			
 			printf("Box moved successfully.\n");
 		}
 		else if (new_object_location == WALL || new_object_location == BOX || new_object_location == (BOX | TARGET)){
@@ -473,17 +508,27 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 		else if (new_object_location == TARGET){
 			move_terminal_cursor(6,4);
 			clear_to_end_of_line();
-			printf_P(PSTR("You've put the box in the target"));
 			
+			printf_P(PSTR("You've put the box in the target"));
+			// get_location_matrix(new_object_y, new_object_x);
 			board[new_object_y][new_object_x] = (BOX | TARGET);
 			board[new_player_y][new_player_x] = ROOM;
+			box_pushed_on_target = true;
+
 			paint_square(new_object_y, new_object_x);  // Paint new box position
 			paint_square(new_player_y, new_player_x);   
+			generate_music(BOX_ON_TARGET);
 			update_terminal_moves(board[new_object_y][new_object_x], new_object_y, new_object_x);
 			update_terminal_moves(board[new_player_y][new_player_x], new_player_y, new_player_x);
 			// set_display_attribute(BG_BLACK);
 		}
+
+		
 	
+	}
+	else if (current_object == ROOM){
+		generate_music(PLAYER_MOVED);
+		
 	}
 
 	// | 3. Update the player location (player_row and player_col).      |
@@ -517,9 +562,10 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	if (new_object_location != TARGET){
 		clear_to_end_of_line();
 		printf_P(PSTR("You've made a valid move!\n"));
+		
 		// player is just moving so 
 		// we'll do that for now and then do and test the other 2
-		generate_music(PLAYER_MOVED);
+		// generate_music(PLAYER_MOVED);
 	}
 	
 	steps_glob++; //unbounded steps
@@ -530,11 +576,16 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	printf_P(PSTR("Level: %d"), level);
 	move_terminal_cursor(7,5);
 	printf_P(PSTR("STEPS: %d"), steps_glob);
+	move_terminal_cursor(0, 0);
+	printf_P(PSTR("Joystick coordinates: x: %d y:%d     "), joy_x, joy_y);
 	// step should keep incrementing 
 	number_to_display = (number_to_display + 1) % 100; // max steps is 99 on the Seven-segment display
 	
 
-	flash_player();     
+	flash_player();  
+
+
+	
 	
 	return true;
 

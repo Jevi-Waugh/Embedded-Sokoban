@@ -152,6 +152,8 @@ void new_game()
 	clear_serial_input_buffer();
 }
 
+
+
 void play_game(void)
 {
 
@@ -159,6 +161,7 @@ void play_game(void)
 	uint32_t last_print_time = 0;
 	uint32_t start_time = get_current_time();  // Only record start time now
 	uint32_t last_target_flash_time = get_current_time();
+	last_target_area_flash_time = get_current_time();
 	bool game_paused = false;
 	// has not been tested yet.
 	game_muted = false;
@@ -292,6 +295,28 @@ void play_game(void)
 			// Update the most recent icon flash time.
 			last_flash_time = current_time;
 		}
+
+		// DEBUG::
+		move_terminal_cursor(1, 0);
+		printf("<!> shiftpost: %"PRIu32"    %"PRIu32"     ", current_time, last_target_area_flash_time);
+		// ::DEBUG
+		if (new_object_location == TARGET){
+			printf_P(PSTR("testing"));
+			get_location_matrix(new_object_y, new_object_x);
+		}
+		if (current_time >= last_target_area_flash_time + 500)
+		{
+			printf_P(PSTR("testing"));
+			// 200ms (0.2 seconds) has passed since the last time
+			// we flashed the player icon, flash it now.
+			
+			// then reset displays
+			reset_animation_display();
+
+			// Update the most recent icon flash time.
+			last_target_area_flash_time = current_time;
+		}
+		 
 		// if (delta steps and move
 		// if (delta_steps > 0 and move_player is true)
 		//      10 ms

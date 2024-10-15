@@ -13,7 +13,7 @@
 #define GAME_H_
 
 #define PLAYER_MOVED 1
-#define INVALID_MOVE 2
+#define BOX_ON_TARGET 2
 #define PUSHING_BOX 3
 
 #include <stdint.h>
@@ -33,11 +33,15 @@
 #define COLOUR_TARGET	(COLOUR_RED)
 #define COLOUR_DONE  	(COLOUR_GREEN)
 
-extern volatile uint8_t steps_glob;
+extern volatile uint16_t steps_glob;
 extern volatile level;
 
 extern volatile uint16_t freq;	// Hz
 extern volatile float dutycycle;	// %
+extern uint32_t last_target_area_flash_time;
+extern uint8_t new_object_location;
+extern uint8_t new_object_x;
+extern uint8_t new_object_y;
 
 
 /// <summary>
@@ -46,6 +50,7 @@ extern volatile float dutycycle;	// %
 // void display_digit(uint8_t number, uint8_t digit) ;
 // void seven_segment(uint8_t fixed_number);
 void initialise_game(int level);
+void reset_animation_display();
 void wall_message();
 void flash_target_square();
 /// <summary>
