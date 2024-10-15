@@ -19,6 +19,8 @@ uint16_t duty_cycle_to_pulse_width(float dutycycle, uint16_t clockperiod);
 void init_timer1(void);
 void start_tone();
 void stop_tone();
+void generate_music(int type_of_music);
+void set_up_music(uint16_t freq, float dutycycle);
 // void display_digit(uint8_t number, uint8_t digit);
 
 #endif /* TIMER1_H_ */
