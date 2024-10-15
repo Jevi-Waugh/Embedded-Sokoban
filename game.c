@@ -234,17 +234,18 @@ void flash_player(void)
 }
 
 void flash_target_square(){
+	
 	target_visible = !target_visible;
 	int i,j;
 	for (i=0; i< MATRIX_NUM_ROWS; i++){
 		for (j=0; j< MATRIX_NUM_COLUMNS; j++){
 			//DONT FORGET TO include BOX AS WELL
-			if ((board[i][j] & TARGET) && !(board[i][j] & BOX)){
+			if (board[i][j] == TARGET){
 				if(target_visible){
-					ledmatrix_update_pixel(player_row, player_col, COLOUR_TARGET);
+					ledmatrix_update_pixel(i, j, COLOUR_TARGET);
 				}
 				else{
-					ledmatrix_update_pixel(player_row, player_col, COLOUR_BLACK);
+					ledmatrix_update_pixel(i, j, COLOUR_BLACK);
 				}
 			}
 		}
@@ -518,7 +519,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 		printf_P(PSTR("You've made a valid move!\n"));
 		// player is just moving so 
 		// we'll do that for now and then do and test the other 2
-		// generate_music(1);
+		generate_music(PLAYER_MOVED);
 	}
 	
 	steps_glob++; //unbounded steps

@@ -9,6 +9,18 @@
 #ifndef TIMER1_H_
 #define TIMER1_H_
 #include <stdint.h>
+#include "game.h"
+#include "startscrn.h"
+#include "ledmatrix.h"
+#include "buttons.h"
+#include "serialio.h"
+#include "terminalio.h"
+#include "timer0.h"
+#include "timer1.h"
+#include "timer2.h"
+
+
+extern bool game_muted;
 /// <summary>
 /// Skeletal timer 1 initialisation function.
 

@@ -9,7 +9,7 @@
 #include <avr/interrupt.h>
 #include "game.h"
 uint8_t music_duration = 0;
-
+bool game_muted;
 uint16_t freq_to_clock_period(uint16_t freq) {
 	return (1000000UL / freq);	// UL makes the constant an unsigned long (32 bits)
 								// and ensures we do 32 bit arithmetic, not 16
@@ -27,6 +27,7 @@ void init_timer1(void)
 
 	// Setup timer 1.
 	TCNT1 = 0;
+	set_up_music(200,2);
 	// // /* Enable interrupt on timer on output compare match 
 	TIMSK1 = (1<<OCIE1A);
 
@@ -50,6 +51,7 @@ void init_timer1(void)
 	TCCR1A = (1 << COM1B1) | (0 <<COM1B0) | (1 <<WGM11) | (1 << WGM10);
 	TCCR1B = (1 << WGM13) | (1 << WGM12); // dont start the buzzer just yet otherwise as soon as power is plugged into the AVR it will play.
 	// Sounds must be tones (not clicks) in the range 20Hz to 5kHz.
+	 
 	
 }
 
@@ -84,38 +86,47 @@ void stop_tone(){
 
 void generate_music(int type_of_music){
 	
-	music_duration = 200; // in ms
+	music_duration = 50; // in ms
 	// 1. Player being moved
 	// 2. Invalid move
 	// 3. Box pushed
 	
 	if (type_of_music == 1){
 		// Player being moved and enter param
-		set_up_music(20, 50);
+		set_up_music(200, 2);
 	}
 	else if(type_of_music == 2){
 		// Invalid move
-		set_up_music(600, 10);
+		set_up_music(400, 10);
 	}
 	else if(type_of_music == 3){
 		// Box pushed
 		set_up_music(200, 350);
 	}
 	// start tone here so that way its easier for music debugging
-	// start_tone();
+	if (game_muted == false){
+		//If the Game Pause feature is implemented, no sound should play while the game is paused, however
+		//playing sounds must resume where they were left off when unpaused.
+		//havent done that
+		start_tone();
+	}
+	
+	
 }
 
-ISP(TIMER1_COMPA_VECT){
+ISR(TIMER1_COMPA_vect){
+	// printf(("inTERRUPT......"));
 	// Timer/counter 1 compare match A interrupt service routine
 	// I think compare match happens every millisecond
 	if (music_duration > 0){
 		// if set then it means that the musc has to play
+		
 		music_duration--;
 	}
 	else{
 		// if not then the music has to stop
 		stop_tone();
-		TIMSK1 &= ~(1 << OCIE1A); // Disable interrupt
+		// TIMSK1 &= ~(1 << OCIE1A); // Disable interrupt
 	}
 }
 

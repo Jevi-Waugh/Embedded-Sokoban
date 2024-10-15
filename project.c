@@ -33,6 +33,7 @@
 #define MILLISECONDS 1000
 int32_t level_time = 0;
 
+
 // Function prototypes - these are defined below (after main()) in the order
 // given here.
 void initialise_hardware(void);
@@ -157,9 +158,10 @@ void play_game(void)
 	uint32_t last_flash_time = get_current_time();
 	uint32_t last_print_time = 0;
 	uint32_t start_time = get_current_time();  // Only record start time now
+	uint32_t last_target_flash_time = get_current_time();
 	bool game_paused = false;
 	// has not been tested yet.
-	static bool game_muted = false;
+	game_muted = false;
     
 
 	display_terminal_gameplay();
@@ -201,13 +203,14 @@ void play_game(void)
 			serial_input = NULL;
 
 		}
-		if (toupper(serial_input) == 'q'){
+		if (toupper(serial_input) == 'Q'){
 			// Mute the sounds
 			// this won't be enough because it can be turned back on 
 			// as soon as a move happens
 			// c = (a < b) ? a : b;
 			// I made it static so that it keeps toggling i guess
-			game_muted = (game_muted != true) ? true:false
+			// game_muted = (game_muted != true) ? true:false
+			game_muted = !game_muted;
 			// stop_tone();
 		}
 		if (btn == BUTTON0_PUSHED || toupper(serial_input) == 'D')
@@ -282,7 +285,10 @@ void play_game(void)
 			// Update the most recent icon flash time.
 			last_flash_time = current_time;
 		}
-		
+		if (current_time >= last_flash_time + 500){
+			flash_target_square();
+			last_target_flash_time = current_time;
+		}
 		// if (delta steps and move
 		// if (delta_steps > 0 and move_player is true)
 		//      10 ms
