@@ -33,6 +33,7 @@
 // to other .C files reduces modularity.
 
 
+
 // ============================ GLOBAL VARIABLES =============================
 
 // The game board, which is dynamically constructed by initialise_game() and
@@ -54,6 +55,7 @@ volatile float dutycycle;	// %
 
 // A flag for keeping track of whether the player is currently visible.
 static bool player_visible;
+static bool target_visible;
 #define NULL_WALL_MESSAGES 3
 
 
@@ -164,6 +166,7 @@ void initialise_game(int level)
 
 	// Make the player icon initially invisible.
 	player_visible = false;
+	target_visible = false;
 
 	// Copy the starting layout (level 1 map) to the board array, and flip
 	// all the rows.
@@ -227,6 +230,25 @@ void flash_player(void)
 	{
 		// The player is not visible, paint the underlying square.
 		paint_square(player_row, player_col);
+	}
+}
+
+void flash_target_square(){
+	target_visible = !target_visible;
+	int i,j;
+	for (i=0; i< MATRIX_NUM_ROWS; i++){
+		for (j=0; j< MATRIX_NUM_COLUMNS; j++){
+			//DONT FORGET TO include BOX AS WELL
+			if ((board[i][j] & TARGET) && !(board[i][j] & BOX)){
+				if(target_visible){
+					ledmatrix_update_pixel(player_row, player_col, COLOUR_TARGET);
+				}
+				else{
+					ledmatrix_update_pixel(player_row, player_col, COLOUR_BLACK);
+				}
+			}
+		}
+
 	}
 }
 
@@ -333,6 +355,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	
 	sei();
 	player_visible = true; 
+	target_visible = true;
 	flash_player();   
 	// | 2. Calculate the new location of the player.                    |
 	// |      - You may find creating a function for this useful.        |
@@ -467,7 +490,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	old_p_x = player_col;
 	old_p_y = player_row;
 	// Sounds must be tones (not clicks) in the range 20Hz to 5kHz.
-	start_tone();
+	
 	//stop_tone();
 	// sound works just figure how to make it last 200 ms or smth
 
@@ -493,6 +516,9 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	if (new_object_location != TARGET){
 		clear_to_end_of_line();
 		printf_P(PSTR("You've made a valid move!\n"));
+		// player is just moving so 
+		// we'll do that for now and then do and test the other 2
+		// generate_music(1);
 	}
 	
 	steps_glob++; //unbounded steps
@@ -505,17 +531,10 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	printf_P(PSTR("STEPS: %d"), steps_glob);
 	// step should keep incrementing 
 	number_to_display = (number_to_display + 1) % 100; // max steps is 99 on the Seven-segment display
-	// seven_segment(steps);
-	// | 4. Draw the player icon at the new player location.             |
-	// |      - Once again, you may find the function flash_player()     |
-	// |        useful.
 	
-	                                           
-	// | 5. Reset the icon flash cycle in the caller function (i.e.,     |
-	// |    play_game())                                                 |
 
 	flash_player();     
-	// set_display_attribute(TERM_RESET);
+	
 	return true;
 
 }
@@ -536,12 +555,9 @@ bool is_game_over(void)
 			}
 		}
 	}
-
 	if (count_targets == num_targets){
 		// Level is finished and return true
 		return true;
 	}
-
-	
 	return false;
 }

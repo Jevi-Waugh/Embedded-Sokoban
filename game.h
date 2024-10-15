@@ -12,6 +12,10 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+#define PLAYER_MOVED 1
+#define INVALID_MOVE 2
+#define PUSHING_BOX 3
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -43,6 +47,7 @@ extern volatile float dutycycle;	// %
 // void seven_segment(uint8_t fixed_number);
 void initialise_game(int level);
 void wall_message();
+void flash_target_square();
 /// <summary>
 /// Moves the player based on row and column deltas.
 /// </summary>
