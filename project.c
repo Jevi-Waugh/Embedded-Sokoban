@@ -247,6 +247,8 @@ void play_game(void)
 			clear_to_end_of_line();
 			printf_P(PSTR("GAME PAUSED!"));
 			uint32_t game_pause_time = get_current_time();
+			uint8_t timer_setting = TCCR1B;
+			stop_tone();
 			// uint32_t last_game_pause_time = get_current_time();
 			// LAST FLASH TIME Thingi
 			while(game_paused){
@@ -268,6 +270,7 @@ void play_game(void)
 					printf_P(PSTR("GAME RESUMED!"));
 					start_time += get_current_time() - game_pause_time;
 					last_flash_time += get_current_time() - game_pause_time;
+					TCCR1B = timer_setting;
 					// LAST FLASH TIME Thingi
 					game_paused = false;
 				}
@@ -276,6 +279,10 @@ void play_game(void)
 		}
 
 		uint32_t current_time = get_current_time();
+		if (current_time >= last_target_flash_time + 500){
+			flash_target_square();
+			last_target_flash_time = current_time;
+		}
 		if (current_time >= last_flash_time + 200)
 		{
 			// 200ms (0.2 seconds) has passed since the last time
@@ -284,10 +291,6 @@ void play_game(void)
 
 			// Update the most recent icon flash time.
 			last_flash_time = current_time;
-		}
-		if (current_time >= last_flash_time + 500){
-			flash_target_square();
-			last_target_flash_time = current_time;
 		}
 		// if (delta steps and move
 		// if (delta_steps > 0 and move_player is true)
