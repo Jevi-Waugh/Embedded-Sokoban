@@ -53,8 +53,10 @@ volatile float dutycycle;	// %
 
 uint32_t last_target_area_flash_time;
 uint8_t new_object_location;
-uint8_t new_object_x;
-uint8_t new_object_y;
+uint8_t new_object_x = 0;
+uint8_t new_object_y = 0;
+
+bool target_met = false;
 
 
 
@@ -66,9 +68,7 @@ bool box_pushed_on_target;
 
 
 // ========================== GAME LOGIC FUNCTIONS ===========================
-void reset_animation_display(uint8_t new_object_y, uint8_t new_object_x){
-	paint_square(new_object_y, new_object_x);
-}
+
 // This function paints a square based on the object(s) currently on it.
 static void paint_square(uint8_t row, uint8_t col)
 {
@@ -93,7 +93,21 @@ static void paint_square(uint8_t row, uint8_t col)
 			break;
 	}
 }
-
+void reset_animation_display(uint8_t y,  uint8_t x){
+	int i;
+	uint16_t target_area[9][2] = { {y+1,x-1}, {y+1,x}, {y+1,x+1},
+						   {y,x-1}, {y,x}, {y,x+1},
+						   {y-1,x-1}, {y-1,x}, {y-1,x+1}
+						};
+	reset_cursor_position();
+	// printf_P(PSTR("RESETING ANIMATION DISPLAY %d %d"), x, y);
+	for (i=0;i< 9;i++){
+		// printf_P(PSTR("painting %d %d"),target_area[i][0], target_area[i][1]);
+		paint_square(target_area[i][0], target_area[i][1]);
+		
+	}
+	
+}
 void wall_message(){
 	int message_num = rand() % NULL_WALL_MESSAGES;
 	
@@ -113,7 +127,7 @@ void wall_message(){
 void initialise_game(int level)
 {
 	// Remember that I can't use TIME ON AVR
-	srand(time(NULL));
+	srand(get_current_time());
 	
 	// Short definitions of game objects used temporarily for constructing
 	// an easier-to-visualise game layout.
@@ -508,7 +522,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 		else if (new_object_location == TARGET){
 			move_terminal_cursor(6,4);
 			clear_to_end_of_line();
-			
+			target_met = true;
 			printf_P(PSTR("You've put the box in the target"));
 			// get_location_matrix(new_object_y, new_object_x);
 			board[new_object_y][new_object_x] = (BOX | TARGET);

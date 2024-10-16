@@ -42,6 +42,7 @@ extern uint32_t last_target_area_flash_time;
 extern uint8_t new_object_location;
 extern uint8_t new_object_x;
 extern uint8_t new_object_y;
+extern bool target_met;
 
 
 /// <summary>
@@ -50,9 +51,10 @@ extern uint8_t new_object_y;
 // void display_digit(uint8_t number, uint8_t digit) ;
 // void seven_segment(uint8_t fixed_number);
 void initialise_game(int level);
-void reset_animation_display();
+void reset_animation_display(uint8_t new_object_x,  uint8_t new_object_y);
 void wall_message();
 void flash_target_square();
+void get_location_matrix(uint8_t y, uint8_t x);
 /// <summary>
 /// Moves the player based on row and column deltas.
 /// </summary>

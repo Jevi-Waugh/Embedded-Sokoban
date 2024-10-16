@@ -203,7 +203,7 @@ void play_game(void)
 			serial_input = fgetc(stdin);
 		}
 		else{
-			serial_input = NULL;
+			serial_input = '\0';
 
 		}
 		if (toupper(serial_input) == 'Q'){
@@ -216,12 +216,13 @@ void play_game(void)
 			game_muted = !game_muted;
 			// stop_tone();
 		}
-		if (btn == BUTTON0_PUSHED || toupper(serial_input) == 'D')
+		if (btn == BUTTON0_PUSHED || toupper(serial_input) == 'D' || joy_y > 550 )
 		{
 			// Move the player, see move_player(...) in game.c.
 			// Also remember to reset the flash cycle here.
 			// move_player(y, x)
 			move_player(0, 1);
+			joy_y = 0;
 			flash_player();
 			
 		}
@@ -264,7 +265,7 @@ void play_game(void)
 					serial_input = fgetc(stdin);
 				}
 				else{
-					serial_input = NULL;
+					serial_input = '\0';
 					}
 		
 				if (toupper(serial_input) == 'P'){
@@ -298,24 +299,27 @@ void play_game(void)
 
 		// DEBUG::
 		move_terminal_cursor(1, 0);
-		printf("<!> shiftpost: %"PRIu32"    %"PRIu32"     ", current_time, last_target_area_flash_time);
+		// printf("<!> shiftpost: %"PRIu32"    %"PRIu32"     ", current_time, last_target_area_flash_time);
 		// ::DEBUG
+		uint8_t target_x = new_object_x;
+		uint8_t target_y = new_object_y;
 		if (new_object_location == TARGET){
-			printf_P(PSTR("testing"));
-			get_location_matrix(new_object_y, new_object_x);
-		}
-		if (current_time >= last_target_area_flash_time + 500)
-		{
-			printf_P(PSTR("testing"));
-			// 200ms (0.2 seconds) has passed since the last time
-			// we flashed the player icon, flash it now.
+			// printf_P(PSTR("testing"));
 			
-			// then reset displays
-			reset_animation_display();
-
-			// Update the most recent icon flash time.
+			get_location_matrix(new_object_y, new_object_x);
 			last_target_area_flash_time = current_time;
+
+			// target_met = false;
 		}
+		// else if (current_time >= last_target_area_flash_time + 500)
+		// {
+		// 	// printf_P(PSTR("testing2 %d %d"), new_object_y, new_object_x);
+		// 	if (new_object_location == TARGET){
+		// 		reset_animation_display(target_y, target_x);
+		// 		last_target_area_flash_time = current_time;
+		// 	}
+			
+		// }
 		 
 		// if (delta steps and move
 		// if (delta_steps > 0 and move_player is true)
