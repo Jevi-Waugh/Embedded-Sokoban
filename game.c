@@ -58,6 +58,11 @@ uint8_t new_object_y = 0;
 
 bool target_met = false;
 
+// uint8_t move_made[];
+uint16_t undo_list[6][2];
+int undo_capacity = 0;
+uint8_t old_player_moves[2];
+
 
 
 // A flag for keeping track of whether the player is currently visible.
@@ -439,8 +444,7 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 	uint8_t current_object = board[new_player_y][new_player_x] & OBJECT_MASK;
 	new_object_location = board[new_object_y][new_object_x]  & OBJECT_MASK;
 
-	uint8_t old_p_x;
-	uint8_t old_p_y;
+	
 
 
 
@@ -568,8 +572,9 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 
 	// | 3. Update the player location (player_row and player_col).      |
 	// for flashing player
-	old_p_x = player_col;
-	old_p_y = player_row;
+	old_player_moves[0] = player_row;
+	old_player_moves[1] = player_col;
+	
 	// Sounds must be tones (not clicks) in the range 20Hz to 5kHz.
 	
 	//stop_tone();
@@ -658,30 +663,25 @@ bool is_game_over(void)
 }
 
 
-// void undo_move(){
-// 	// 
-// 	int undo_capacity = 0;
-// 	uint8_t move_made[] = {};
-// 	// example
-// 	uint8_t undo_list[6][2];
-// 	int i;
-// 	if (undo_capacity > 6){
-// 		// If the undo capacity is 6 and another valid move is made, the oldest remembered
-// 		// move is discarded and the newest move is added,
-// 		// means that it is trying to store a 7th element
-// 		for (i = 0; i < 6; i++){
-// 			if (i == 5){
-// 				//
-// 				undo_list[i] = move_made
-// 			}
-// 			else{
-// 				undo_list[i] = undo_list[i+1]
-// 			}
-			
-// 		}
-// 	}
-// 	else{
-// 		undo_list[undo_capacity] = move_made;
-// 		undo_capacity++;
-// 	}
-// }
+void undo_move(uint8_t move_made[]){
+	
+	int i;
+	// fix this because of array
+	if (undo_capacity > 6){
+		// If the undo capacity is 6 and another valid move is made, the oldest remembered
+		// move is discarded and the newest move is added,
+		// means that it is trying to store a 7th element
+		for (i = 0; i < 6; i++){
+			if (i == 5){
+				undo_list[i] = move_made;
+			}
+			else{
+				undo_list[i] = undo_list[i+1];
+			}
+		}
+	}
+	else{
+		undo_list[undo_capacity] = move_made;
+		undo_capacity++;
+	}
+}

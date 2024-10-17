@@ -166,10 +166,12 @@ void play_game(void)
 	bool game_paused = false;
 	// has not been tested yet.
 	game_muted = false;
-    DDRD |= (1 << 5) | (1 << 6);
+    DDRA |= (1 << 5) | (1 << 6);
 	// CLEAR D5 and D6
-	PORTB &= ~((1 << PD5) | (1 << PD6)); 
-	PORTB |= (1 << 5);
+	PORTA &= ~((1 << PD5) | (1 << PD6)); 
+	PORTA |= (1 << 5) | (1<<6);
+	
+	PORTA &= ~(1 << 5);
 	
 	
 
@@ -287,7 +289,13 @@ void play_game(void)
 					
 			}
 		}
-
+		
+		else if(toupper(serial_input) == 'Z' && steps_glob > 1){
+			undo_move(old_player_moves);
+		}
+		else if(toupper(serial_input) == 'Z' && steps_glob == 0){
+			printf_P(PSTR("You can't undo steps that you haven't made yet, sorry!"));
+		}
 		uint32_t current_time = get_current_time();
 		if (current_time >= last_target_flash_time + 500){
 			flash_target_square();
@@ -308,9 +316,13 @@ void play_game(void)
 		printf("<!> shiftpost: %"PRIu32"    %"PRIu32"     ", current_time, last_target_area_flash_time);
 		// ::DEBUG
 		
-		
+		uint16_t target_x;
+		uint16_t target_y;
 		if (target_met && new_object_location == TARGET){
 			// printf_P(PSTR("testing"));
+			
+			target_x = new_object_x;
+			target_y = new_object_y;
 			target_met = false;
 			get_location_matrix(new_object_y, new_object_x);
 			last_target_area_flash_time = current_time;
@@ -327,7 +339,7 @@ void play_game(void)
 			// if (new_object_location == TARGET && target_met == true){
 				move_terminal_cursor(23, 0);
 			printf_P(PSTR(" HEY THERE "));
-			get_location_matrix2(new_object_y, new_object_x);
+			get_location_matrix2(target_y, target_x);
 			last_target_area_flash_time = current_time;
 			anim_playing = false;
 			// }
