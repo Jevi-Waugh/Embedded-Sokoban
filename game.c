@@ -293,7 +293,7 @@ void get_location_matrix(uint8_t y, uint8_t x){
 						};
 
 	for (i=0;i< num_area_squares;i++){
-		ledmatrix_update_pixel(target_area[i][0], target_area[i][1], COLOUR_GREEN);
+		ledmatrix_update_pixel(target_area[i][0], target_area[i][1], COLOUR_LIGHT_ORANGE);
 		// paint_square(target_area[i][0], target_area[i][1]);
 		
 	}
@@ -414,7 +414,7 @@ void update_terminal_moves(uint8_t object, uint8_t row, uint8_t col){
 	
 }
 // This function handles player movements.
-bool move_player(int8_t delta_row, int8_t delta_col)
+bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 {
 	//display_terminal_gameplay();
 	
@@ -442,7 +442,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	uint8_t old_p_x;
 	uint8_t old_p_y;
 
-	
+
 
 
 	box_pushed_on_target = false;
@@ -603,8 +603,16 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 		// generate_music(PLAYER_MOVED);
 	}
 	
-	steps_glob++; //unbounded steps
-	// steps_glob = steps;
+	if (diagonal_move){
+		steps_glob = steps_glob + 2; //unbounded steps
+		number_to_display = (number_to_display + 2) % 100;
+		// steps_glob = steps;
+	}
+	else{
+		steps_glob++;
+		number_to_display = (number_to_display + 1) % 100;
+	}
+	
 	
 	
 	move_terminal_cursor(3,4);
@@ -614,7 +622,7 @@ bool move_player(int8_t delta_row, int8_t delta_col)
 	move_terminal_cursor(0, 0);
 	printf_P(PSTR("Joystick coordinates: x: %d y:%d     "), joy_x, joy_y);
 	// step should keep incrementing 
-	number_to_display = (number_to_display + 1) % 100; // max steps is 99 on the Seven-segment display
+	// number_to_display = (number_to_display + 1) % 100; // max steps is 99 on the Seven-segment display
 	
 
 	flash_player();  
@@ -648,3 +656,32 @@ bool is_game_over(void)
 	}
 	return false;
 }
+
+
+// void undo_move(){
+// 	// 
+// 	int undo_capacity = 0;
+// 	uint8_t move_made[] = {};
+// 	// example
+// 	uint8_t undo_list[6][2];
+// 	int i;
+// 	if (undo_capacity > 6){
+// 		// If the undo capacity is 6 and another valid move is made, the oldest remembered
+// 		// move is discarded and the newest move is added,
+// 		// means that it is trying to store a 7th element
+// 		for (i = 0; i < 6; i++){
+// 			if (i == 5){
+// 				//
+// 				undo_list[i] = move_made
+// 			}
+// 			else{
+// 				undo_list[i] = undo_list[i+1]
+// 			}
+			
+// 		}
+// 	}
+// 	else{
+// 		undo_list[undo_capacity] = move_made;
+// 		undo_capacity++;
+// 	}
+// }

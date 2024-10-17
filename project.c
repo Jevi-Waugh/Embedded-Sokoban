@@ -166,7 +166,12 @@ void play_game(void)
 	bool game_paused = false;
 	// has not been tested yet.
 	game_muted = false;
-    
+    DDRD |= (1 << 5) | (1 << 6);
+	// CLEAR D5 and D6
+	PORTB &= ~((1 << PD5) | (1 << PD6)); 
+	PORTB |= (1 << 5);
+	
+	
 
 	display_terminal_gameplay();
 	steps_glob = 0;
@@ -224,24 +229,24 @@ void play_game(void)
 			// Move the player, see move_player(...) in game.c.
 			// Also remember to reset the flash cycle here.
 			// move_player(y, x)
-			move_player(0, 1);
+			move_player(0, 1, false);
 			flash_player();
 		}
 
 		/*USE SWITCH STATEMENT HERE*/
 		else if (btn == BUTTON1_PUSHED || toupper(serial_input) == 'S'){
 			/*move the player down*/
-			move_player(-1, 0);
+			move_player(-1, 0, false);
 			flash_player();
 		}
 		else if (btn == BUTTON2_PUSHED || toupper(serial_input) == 'W'){
 			/*move the player UP*/
-			move_player(1,0);
+			move_player(1,0, false);
 			flash_player();
 			}
 		else if (btn == BUTTON3_PUSHED || toupper(serial_input) == 'A'){
 			/*move the player LEFT*/
-			move_player(0,-1);
+			move_player(0,-1, false);
 			flash_player();
 			}
 		
@@ -302,8 +307,7 @@ void play_game(void)
 		move_terminal_cursor(1, 0);
 		printf("<!> shiftpost: %"PRIu32"    %"PRIu32"     ", current_time, last_target_area_flash_time);
 		// ::DEBUG
-		uint8_t target_x = new_object_x;
-		uint8_t target_y = new_object_y;
+		
 		
 		if (target_met && new_object_location == TARGET){
 			// printf_P(PSTR("testing"));
@@ -314,6 +318,7 @@ void play_game(void)
 
 			// target_met = false;
 		}
+		// fix squares not going away after moving.
 		
 		
 		if (anim_playing && current_time >= last_target_area_flash_time + 500)
@@ -339,32 +344,51 @@ void play_game(void)
 			// // between 50kHz and 200kHz. We will divide our 8MHz clock by 64
 			// // to give us 125kHz.)
 			ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1);
-	
-			// /* Print a welcome message
-			// */
-			// printf("ADC Test\n");
-	
-	
 			// Set the ADC mux to choose ADC0 if x_or_y is 0, ADC1 if x_or_y is 1
-				ADMUX &= ~1;
+			ADMUX &= ~1;
 
 			// Start the ADC conversion
 			ADCSRA |= (1<<ADSC);
-	while(ADCSRA & (1<<ADSC)) {
-		; /* Wait until conversion finished */
-	}
+			while(ADCSRA & (1<<ADSC)) {
+				; /* Wait until conversion finished */
+			}
 				joy_x = ADC;
 			ADMUX |= 1;
 						// Start the ADC conversion
 						ADCSRA |= (1<<ADSC);
-	while(ADCSRA & (1<<ADSC)) {
-		; /* Wait until conversion finished */
-	}
-			joy_y = ADC;
-			if (joy_y > 550){
-						move_player(0, 1);
-						flash_player();
+			while(ADCSRA & (1<<ADSC)) {
+				; /* Wait until conversion finished */
 			}
+			// do the rest of the moves here
+			joy_y = ADC;
+			if (joy_x > 520 && joy_y > 550){
+				// top left
+				move_player(0, 1, true);
+				flash_player();
+			}
+			// else if(){
+			// 	// top right
+			// }
+			// else if(){
+			// 	// bottom left
+			// }
+			// else if(){
+			// 	// bottom right
+			// }
+			// else if(){
+			// 	// top
+			// }
+			// else if(){
+			// 	// left
+			// }
+			// else if(){
+			// 	// right
+			// }
+			// else if(){
+			// 	// bottom
+			// }
+			
+
 			// // Next time through the loop, do the other direction
 			last_joystick_time = current_time;
 		}
