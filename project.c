@@ -158,6 +158,7 @@ void play_game(void)
 {
 
 	uint32_t last_flash_time = get_current_time();
+	uint32_t last_joystick_time = get_current_time();
 	uint32_t last_print_time = 0;
 	uint32_t start_time = get_current_time();  // Only record start time now
 	uint32_t last_target_flash_time = get_current_time();
@@ -169,6 +170,8 @@ void play_game(void)
 
 	display_terminal_gameplay();
 	steps_glob = 0;
+	//bool target_met = false;
+	bool anim_playing = false;
 	
 	// move_terminal_cursor(4,4);
     // printf_P(PSTR("Level: %d "), level);
@@ -216,15 +219,13 @@ void play_game(void)
 			game_muted = !game_muted;
 			// stop_tone();
 		}
-		if (btn == BUTTON0_PUSHED || toupper(serial_input) == 'D' || joy_y > 550 )
+		if (btn == BUTTON0_PUSHED || toupper(serial_input) == 'D'/* || joy_y > 550 */)
 		{
 			// Move the player, see move_player(...) in game.c.
 			// Also remember to reset the flash cycle here.
 			// move_player(y, x)
 			move_player(0, 1);
-			joy_y = 0;
 			flash_player();
-			
 		}
 
 		/*USE SWITCH STATEMENT HERE*/
@@ -299,27 +300,74 @@ void play_game(void)
 
 		// DEBUG::
 		move_terminal_cursor(1, 0);
-		// printf("<!> shiftpost: %"PRIu32"    %"PRIu32"     ", current_time, last_target_area_flash_time);
+		printf("<!> shiftpost: %"PRIu32"    %"PRIu32"     ", current_time, last_target_area_flash_time);
 		// ::DEBUG
 		uint8_t target_x = new_object_x;
 		uint8_t target_y = new_object_y;
-		if (new_object_location == TARGET){
+		
+		if (target_met && new_object_location == TARGET){
 			// printf_P(PSTR("testing"));
-			
+			target_met = false;
 			get_location_matrix(new_object_y, new_object_x);
 			last_target_area_flash_time = current_time;
+			anim_playing = true;
 
 			// target_met = false;
 		}
-		// else if (current_time >= last_target_area_flash_time + 500)
-		// {
-		// 	// printf_P(PSTR("testing2 %d %d"), new_object_y, new_object_x);
-		// 	if (new_object_location == TARGET){
-		// 		reset_animation_display(target_y, target_x);
-		// 		last_target_area_flash_time = current_time;
-		// 	}
+		
+		
+		if (anim_playing && current_time >= last_target_area_flash_time + 500)
+		{
+			// printf_P(PSTR("testing2 %d %d"), new_object_y, new_object_x);
+			// if (new_object_location == TARGET && target_met == true){
+				move_terminal_cursor(23, 0);
+			printf_P(PSTR(" HEY THERE "));
+			get_location_matrix2(new_object_y, new_object_x);
+			last_target_area_flash_time = current_time;
+			anim_playing = false;
+			// }
 			
-		// }
+		}
+		
+		if (current_time >= last_joystick_time + 400){
+			// Set up ADC - AVCC reference, right adjust
+			// Input selection doesn't matter yet - we'll swap this around in the while
+			// // loop below.
+			ADMUX = (1<<REFS0);
+			// // Turn on the ADC (but don't start a conversion yet). Choose a clock
+			// // divider of 64. (The ADC clock must be somewhere
+			// // between 50kHz and 200kHz. We will divide our 8MHz clock by 64
+			// // to give us 125kHz.)
+			ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1);
+	
+			// /* Print a welcome message
+			// */
+			// printf("ADC Test\n");
+	
+	
+			// Set the ADC mux to choose ADC0 if x_or_y is 0, ADC1 if x_or_y is 1
+				ADMUX &= ~1;
+
+			// Start the ADC conversion
+			ADCSRA |= (1<<ADSC);
+	while(ADCSRA & (1<<ADSC)) {
+		; /* Wait until conversion finished */
+	}
+				joy_x = ADC;
+			ADMUX |= 1;
+						// Start the ADC conversion
+						ADCSRA |= (1<<ADSC);
+	while(ADCSRA & (1<<ADSC)) {
+		; /* Wait until conversion finished */
+	}
+			joy_y = ADC;
+			if (joy_y > 550){
+						move_player(0, 1);
+						flash_player();
+			}
+			// // Next time through the loop, do the other direction
+			last_joystick_time = current_time;
+		}
 		 
 		// if (delta steps and move
 		// if (delta_steps > 0 and move_player is true)

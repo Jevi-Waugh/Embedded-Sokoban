@@ -95,6 +95,9 @@ static void paint_square(uint8_t row, uint8_t col)
 }
 void reset_animation_display(uint8_t y,  uint8_t x){
 	int i;
+	reset_cursor_position();
+	clear_to_end_of_line();
+	printf_P(PSTR(" HEY THERE "));
 	uint16_t target_area[9][2] = { {y+1,x-1}, {y+1,x}, {y+1,x+1},
 						   {y,x-1}, {y,x}, {y,x+1},
 						   {y-1,x-1}, {y-1,x}, {y-1,x+1}
@@ -291,6 +294,24 @@ void get_location_matrix(uint8_t y, uint8_t x){
 
 	for (i=0;i< num_area_squares;i++){
 		ledmatrix_update_pixel(target_area[i][0], target_area[i][1], COLOUR_GREEN);
+		// paint_square(target_area[i][0], target_area[i][1]);
+		
+	}
+
+}
+
+void get_location_matrix2(uint8_t y, uint8_t x){
+	//get the location of the player and the target from the matrix
+	//board[new_object_y][new_object_x] = (BOX | TARGET);
+	int num_area_squares = 9;
+	int i;
+	uint16_t target_area[9][2] = { {y+1,x-1}, {y+1,x}, {y+1,x+1},
+						   {y,x-1}, {y,x}, {y,x+1},
+						   {y-1,x-1}, {y-1,x}, {y-1,x+1}
+						};
+
+	for (i=0;i< num_area_squares;i++){
+		paint_square(target_area[i][0], target_area[i][1]);
 		
 	}
 
