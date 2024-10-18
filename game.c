@@ -673,15 +673,20 @@ void undo_move(uint8_t move_made[]){
 		// means that it is trying to store a 7th element
 		for (i = 0; i < 6; i++){
 			if (i == 5){
-				undo_list[i] = move_made;
+				undo_list[i][0] = move_made[0];
+				undo_list[i][1] = move_made[1];
 			}
 			else{
-				undo_list[i] = undo_list[i+1];
+				undo_list[i][0] = undo_list[i+1][0];
+				undo_list[i][1] = undo_list[i+1][1];
 			}
 		}
 	}
 	else{
-		undo_list[undo_capacity] = move_made;
+		undo_list[undo_capacity][0] = move_made[0];
+		undo_list[undo_capacity][1] = move_made[1];
 		undo_capacity++;
 	}
+
+	
 }
