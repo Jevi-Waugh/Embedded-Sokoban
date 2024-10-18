@@ -166,12 +166,13 @@ void play_game(void)
 	bool game_paused = false;
 	// has not been tested yet.
 	game_muted = false;
-    DDRA |= (1 << 5) | (1 << 6);
-	// CLEAR D5 and D6
-	PORTA &= ~((1 << PD5) | (1 << PD6)); 
-	PORTA |= (1 << 5) | (1<<6);
+    
+	DDRA |= (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7);
+	// CLEAR ALL PINS
+	PORTA &= ~((1 << PD2) | (1 << PD3)) | ((1 << PD4) | (1 << PD5)) | ((1 << PD6) | (1 << PD7)); 
+	PORTA |= (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7);
 	
-	PORTA &= ~(1 << 5);
+	
 	
 	
 
@@ -290,8 +291,26 @@ void play_game(void)
 			}
 		}
 		
-		else if(toupper(serial_input) == 'Z' && steps_glob > 1){
+		else if(toupper(serial_input) == 'Z' && steps_glob >= 1){
+			//UNDO MOVE IMPLEMENTATION
 			undo_move(old_player_moves);
+			reset_cursor_position();
+			clear_to_end_of_line();
+			printf_P(PSTR("x: %d y: %d"), old_player_moves[0],old_player_moves[1]);
+			PORTA &= ~(1 << (undo_capacity+1));
+			
+			int i;
+			reset_cursor_position();
+			clear_to_end_of_line();
+			if (undo_capacity == 6){
+				// if we have a full undo list
+				for (i=0; i < 6; i++){
+					// to see if all coordinates actually gets stored.
+					printf_P(PSTR("x: %d, y: %d "), undo_list[i][0], undo_list[i][1]);
+				}
+				
+			}
+			
 		}
 		else if(toupper(serial_input) == 'Z' && steps_glob == 0){
 			printf_P(PSTR("You can't undo steps that you haven't made yet, sorry!"));

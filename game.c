@@ -572,8 +572,8 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 
 	// | 3. Update the player location (player_row and player_col).      |
 	// for flashing player
-	old_player_moves[0] = player_row;
-	old_player_moves[1] = player_col;
+	old_player_moves[0] = player_col;
+	old_player_moves[1] = player_row;
 	
 	// Sounds must be tones (not clicks) in the range 20Hz to 5kHz.
 	
@@ -667,7 +667,7 @@ void undo_move(uint8_t move_made[]){
 	
 	int i;
 	// fix this because of array
-	if (undo_capacity > 6){
+	if (undo_capacity > 5){
 		// If the undo capacity is 6 and another valid move is made, the oldest remembered
 		// move is discarded and the newest move is added,
 		// means that it is trying to store a 7th element
@@ -681,12 +681,20 @@ void undo_move(uint8_t move_made[]){
 				undo_list[i][1] = undo_list[i+1][1];
 			}
 		}
+
+		
 	}
 	else{
 		undo_list[undo_capacity][0] = move_made[0];
 		undo_list[undo_capacity][1] = move_made[1];
 		undo_capacity++;
+		// its getting stored wrong somehow
+		printf_P(PSTR("Undo capacity: %d "), undo_capacity);
+		printf_P(PSTR("x: %d, y: %d "), undo_list[0][0], undo_list[0][1]);
 	}
+	// wait this doesnt work
+	// because im will be using A2-A7
+	// PORTA |= (1 << undo_capacity+1);
 
 	
 }
