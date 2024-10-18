@@ -297,7 +297,12 @@ void play_game(void)
 			reset_cursor_position();
 			clear_to_end_of_line();
 			printf_P(PSTR("x: %d y: %d"), old_player_moves[0],old_player_moves[1]);
-			PORTA &= ~(1 << (undo_capacity+1));
+			// implement where it turns off as there more moves for undo
+			if (undo_capacity >= 1){
+				PORTA &= ~(1 << (undo_capacity-4));
+			}
+			
+			
 			
 			int i;
 			reset_cursor_position();
@@ -383,42 +388,55 @@ void play_game(void)
 			while(ADCSRA & (1<<ADSC)) {
 				; /* Wait until conversion finished */
 			}
-				joy_x = ADC;
+			joy_x = ADC;
 			ADMUX |= 1;
 						// Start the ADC conversion
-						ADCSRA |= (1<<ADSC);
+			ADCSRA |= (1<<ADSC);
 			while(ADCSRA & (1<<ADSC)) {
 				; /* Wait until conversion finished */
 			}
 			// do the rest of the moves here
 			joy_y = ADC;
-			if (joy_x > 520 && joy_y > 550){
+			if (joy_x > 550 && joy_y > 550){
 				// top left
-				move_player(0, 1, true);
+				move_player(1, -1, true);
 				flash_player();
 			}
-			// else if(){
-			// 	// top right
-			// }
-			// else if(){
-			// 	// bottom left
-			// }
-			// else if(){
-			// 	// bottom right
-			// }
-			// else if(){
-			// 	// top
-			// }
-			// else if(){
-			// 	// left
-			// }
-			// else if(){
-			// 	// right
-			// }
-			// else if(){
-			// 	// bottom
-			// }
-			
+			else if(joy_x > 520 && joy_y < 500){
+				// top right
+				move_player(1, 1, true);
+				flash_player();
+			}
+			else if(joy_x < 510 && joy_y > 550){
+				// bottom left
+				move_player(-1, -1, true);
+				flash_player();
+			}
+			else if(joy_x < 510 && joy_y < 500){
+				// bottom right
+				move_player(-1, 1, true);
+				flash_player();
+			}
+			else if(joy_x > 550){
+				// top
+				move_player(1, 0, false);
+				flash_player();
+			}
+			else if(joy_x < 510){
+				// bottom
+				move_player(-1, 0, false);
+				flash_player();
+			}
+			else if(joy_y > 550){
+				// left
+				move_player(0, -1, false);
+				flash_player();
+			}
+			else if(joy_y < 500){
+				// right
+				move_player(0, 1, false);
+				flash_player();
+			}
 
 			// // Next time through the loop, do the other direction
 			last_joystick_time = current_time;
