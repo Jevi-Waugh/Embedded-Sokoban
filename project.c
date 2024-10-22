@@ -461,19 +461,21 @@ uint8_t max(uint8_t time_score, int zero){
 void handle_game_over(void)
 {
 	// Score = max(200 - S, 0) * 20 + max(1200 - T, 0)
+	// clear the matrix
+	clear_terminal();
 	uint8_t score = max(200 - steps_glob, 0) * 20 + max(1200 - level_time, 0);
-
-	move_terminal_cursor(17, 10);
+	reset_cursor_position();
+	move_terminal_cursor(10, 10);
 	printf_P(PSTR("LEVEL %d COMPLETED"), level);
-	move_terminal_cursor(18, 10);
+	move_terminal_cursor(11, 10);
 	printf_P(PSTR("STEPS TAKEN: %d"), steps_glob);
-	move_terminal_cursor(19, 10);
+	move_terminal_cursor(12, 10);
 	// amount of time in seconds (rounded down to the nearest second)
 	printf_P(PSTR("TIME TAKEN: %d"), level_time);
-	move_terminal_cursor(20, 10);
+	move_terminal_cursor(13, 10);
 	printf_P(PSTR("SCORE: %d"), score);
 
-	move_terminal_cursor(21, 10);
+	move_terminal_cursor(14, 10);
 	printf_P(PSTR("Press 'r'/'R' to restart, or 'e'/'E' to exit"));
 
 	// Do nothing until a valid input is made.

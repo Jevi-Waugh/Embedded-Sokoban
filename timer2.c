@@ -71,10 +71,6 @@ ISR(TIMER2_COMPA_vect) {
 
     // Switch to the other digit for the next interrupt
     current_digit = 1 - current_digit;
-
-	uint16_t value_2;
-	
-	
 	/* Set up the serial port for stdin communication at 19200 baud, no echo */
 	// init_serial_stdio(19200,0);
 	
