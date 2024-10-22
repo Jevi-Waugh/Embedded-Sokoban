@@ -60,6 +60,7 @@ bool target_met = false;
 
 // uint8_t move_made[];
 uint16_t undo_list[6][2];
+uint16_t undo_box[6][4];
 int undo_capacity = 0;
 uint8_t old_player_moves[2];
 
@@ -77,32 +78,42 @@ bool box_pushed_on_target;
 // This function paints a square based on the object(s) currently on it.
 static void paint_square(uint8_t row, uint8_t col)
 {
+	DisplayParameter colour = BG_BLACK;
 	switch (board[row][col] & OBJECT_MASK)
 	{
 		case ROOM:
 			ledmatrix_update_pixel(row, col, COLOUR_BLACK);
+			colour = BG_BLACK;
 			break;
 		case WALL:
 			ledmatrix_update_pixel(row, col, COLOUR_WALL);
+			colour = BG_YELLOW;
 			break;
 		case BOX:
 			ledmatrix_update_pixel(row, col, COLOUR_BOX);
+			colour = BG_MAGENTA;
 			break;
 		case TARGET:
 			ledmatrix_update_pixel(row, col, COLOUR_TARGET);
+			colour = BG_RED;
 			break;
 		case BOX | TARGET:
 			ledmatrix_update_pixel(row, col, COLOUR_DONE);
+			colour = BG_GREEN;
 			break;
 		default:
-			break;
+			return;
 	}
+	move_terminal_cursor(12 + (MATRIX_NUM_ROWS - row),col+17);
+	set_display_attribute(colour);
+	printf_P(PSTR(" "));
+	set_display_attribute(TERM_RESET);
 }
 void reset_animation_display(uint8_t y,  uint8_t x){
 	int i;
 	reset_cursor_position();
 	clear_to_end_of_line();
-	printf_P(PSTR(" HEY THERE "));
+	// printf_P(PSTR(" HEY THERE "));
 	uint16_t target_area[9][2] = { {y+1,x-1}, {y+1,x}, {y+1,x+1},
 						   {y,x-1}, {y,x}, {y,x+1},
 						   {y-1,x-1}, {y-1,x}, {y-1,x+1}
@@ -125,7 +136,7 @@ void wall_message(){
 		PSTR("AVOID THE WALLS!")
 	};
 
-	move_terminal_cursor(6,4);
+	move_terminal_cursor(6,44);
 	clear_to_end_of_line();
 	printf_P(messages[message_num]); 
 }
@@ -251,10 +262,11 @@ void flash_player(void)
 	if (player_visible)
 	{
 		// The player is visible, paint it with COLOUR_PLAYER.
-		
-		
+	move_terminal_cursor(12 + (MATRIX_NUM_ROWS - player_row),player_col+17);
+	set_display_attribute(BG_CYAN);
+	printf_P(PSTR(" "));
+	set_display_attribute(TERM_RESET);
 		ledmatrix_update_pixel(player_row, player_col, COLOUR_PLAYER);
-		
 	}
 	else
 	{
@@ -322,56 +334,15 @@ void get_location_matrix2(uint8_t y, uint8_t x){
 
 }
 
-void display_terminal_gameplay(){
-	// board
-	int i,j;
-	for(i=0; i< MATRIX_NUM_ROWS; i++){
-		for(j=0; j< MATRIX_NUM_COLUMNS; j++){
-
-			switch (board[i][j])
-			{
-			case ROOM:
-				move_terminal_cursor(8 + (MATRIX_NUM_ROWS - i),j+7);
-				set_display_attribute(BG_BLACK);
-				printf_P(PSTR("  "));
-				break;
-			case WALL:
-				move_terminal_cursor(8 + (MATRIX_NUM_ROWS - i),j+7);
-				set_display_attribute(BG_YELLOW);
-				printf_P(PSTR("  "));
-				break;
-			case BOX:
-				move_terminal_cursor(8 + (MATRIX_NUM_ROWS - i),j+7);
-				set_display_attribute(BG_MAGENTA);
-				printf_P(PSTR("  "));
-				break;
-			case TARGET:
-				move_terminal_cursor(8 + (MATRIX_NUM_ROWS - i),j+7);
-				set_display_attribute(BG_RED);
-				printf_P(PSTR("  "));
-				break;
-			default:
-				break;
-			
-			}	
-			set_display_attribute(BG_BLACK);
-		}
-	}
-	set_display_attribute(BG_BLACK);
-}
-
 void reset_cursor_position(){
 	move_terminal_cursor(0,0);
 }
 //flashes player on terminal
 //not done
 void flash_terminal_player(uint8_t player_x, uint8_t player_y, uint8_t old_player_x, uint8_t old_player_y){
-	
+	//NEED TO DO
 	// reset_cursor_position();
-	move_terminal_cursor(8 + (MATRIX_NUM_ROWS - player_y), player_x+7);
-	show_cursor();
-	set_display_attribute(BG_CYAN);
-	printf_P(PSTR("  "));
+
 	// be careful of 1 space and 2 spaces
 	// set_display_attribute(BG_BLACK);
 	// reset_cursor_position();
@@ -379,49 +350,13 @@ void flash_terminal_player(uint8_t player_x, uint8_t player_y, uint8_t old_playe
 	// printf_P(PSTR("  "));
 	
 	set_display_attribute(BG_BLACK);
-	move_terminal_cursor(8 + (MATRIX_NUM_ROWS - old_player_y), old_player_x+7);
+	move_terminal_cursor(12 + (MATRIX_NUM_ROWS - old_player_y), old_player_x+17);
 
 }
 
-void update_terminal_moves(uint8_t object, uint8_t row, uint8_t col){
-	switch (object)
-	{
-	case ROOM /* constant-expression */:
-		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
-		set_display_attribute(BG_BLACK);
-		printf_P(PSTR(" "));
-		break;
-	case WALL /* constant-expression */:
-		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
-		set_display_attribute(BG_YELLOW);
-		printf_P(PSTR(" "));
-		break;
-	case BOX /* constant-expression */:
-		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
-		set_display_attribute(BG_MAGENTA);
-		printf_P(PSTR(" "));
-		break;
-	case TARGET /* constant-expression */:
-		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
-		set_display_attribute(BG_RED);
-		printf_P(PSTR(" "));
-		break;
-	case (BOX | TARGET) /* constant-expression */:
-		move_terminal_cursor(8 + (MATRIX_NUM_ROWS - row),col+7);
-		set_display_attribute(BG_GREEN);
-		printf_P(PSTR(" "));
-		break;
-	
-	default:
-		break;
-	}
-	set_display_attribute(BG_BLACK);
-	
-}
 // This function handles player movements.
 bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 {
-	//display_terminal_gameplay();
 	
 	
 	sei();
@@ -466,15 +401,9 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 				paint_square(new_object_y, new_object_x);  // Paint new box position
 				paint_square(new_player_y, new_player_x); 
 
-
-				//FIGURE THIS
-				//If there was a message displayed in the message area of the terminal, it must be cleared.
-				update_terminal_moves(board[new_player_y][new_player_x], new_player_y, new_player_x);
-				update_terminal_moves(board[new_object_y][new_object_x], new_object_y, new_object_x);
-
 				// clear_terminal();
 				set_display_attribute(BG_BLACK);
-				move_terminal_cursor(6,4);
+				move_terminal_cursor(6,44);
 				clear_to_end_of_line();
 				generate_music(PUSHING_BOX);
 				printf(PSTR("BOX MOVED FROM TARGET.\n"));
@@ -484,19 +413,19 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 				switch (new_object_location)
 				{
 				case WALL:
-					move_terminal_cursor(6,4);
+					move_terminal_cursor(6,44);
 					clear_to_end_of_line();
 					printf_P(PSTR("There's a wall there mate!"));
 					return false;
 					break;
 				case BOX:
-					move_terminal_cursor(6,4);
+					move_terminal_cursor(6,44);
 					clear_to_end_of_line();
 					printf_P(PSTR("A box cannot be stacked on top of another box."));
 					return false;
 					break;
 				case (BOX | TARGET):
-					move_terminal_cursor(6,4);
+					move_terminal_cursor(6,44);
 					clear_to_end_of_line();
 					printf_P(PSTR("Target already placed"));
 					return false;
@@ -511,9 +440,7 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 
 			paint_square(new_object_y, new_object_x);  // Paint new box position
             paint_square(new_player_y, new_player_x);   
-			update_terminal_moves(board[new_object_y][new_object_x], new_object_y, new_object_x);
-			update_terminal_moves(board[new_player_y][new_player_x], new_player_y, new_player_x);
-			move_terminal_cursor(6,4);
+			move_terminal_cursor(6,44);
 			clear_to_end_of_line();
 			generate_music(PUSHING_BOX);
 			
@@ -523,19 +450,19 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 			switch (new_object_location)
 			{
 			case WALL:
-				move_terminal_cursor(6,4);
+				move_terminal_cursor(6,44);
 				clear_to_end_of_line();
 				printf_P(PSTR("There's a wall there mate!"));
 				return false;
 				break;
 			case BOX:
-				move_terminal_cursor(6,4);
+				move_terminal_cursor(6,44);
 				clear_to_end_of_line();
 				printf_P(PSTR("A box cannot be stacked on top of another box."));
 				return false;
 				break;
 			case (BOX | TARGET):
-				move_terminal_cursor(6,4);
+				move_terminal_cursor(6,44);
 				clear_to_end_of_line();
 				printf_P(PSTR("Target already placed"));
 				return false;
@@ -545,7 +472,7 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 		}
 		
 		else if (new_object_location == TARGET){
-			move_terminal_cursor(6,4);
+			move_terminal_cursor(6,44);
 			clear_to_end_of_line();
 			target_met = true;
 			printf_P(PSTR("You've put the box in the target"));
@@ -557,8 +484,6 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 			paint_square(new_object_y, new_object_x);  // Paint new box position
 			paint_square(new_player_y, new_player_x);   
 			generate_music(BOX_ON_TARGET);
-			update_terminal_moves(board[new_object_y][new_object_x], new_object_y, new_object_x);
-			update_terminal_moves(board[new_player_y][new_player_x], new_player_y, new_player_x);
 			// set_display_attribute(BG_BLACK);
 		}
 
@@ -596,17 +521,17 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 	player_row = new_player_y;
 	// flash terminal player here
 	// flash_terminal_player(player_col, player_row, old_p_x, old_p_y);
-	move_terminal_cursor(6,4);
+	// move_terminal_cursor(6,4);
 	
 	
-	if (new_object_location != TARGET){
-		clear_to_end_of_line();
-		printf_P(PSTR("You've made a valid move!\n"));
+	// if (new_object_location != TARGET){
+	// 	clear_to_end_of_line();
+	// 	printf_P(PSTR("You've made a valid move!\n"));
 		
-		// player is just moving so 
-		// we'll do that for now and then do and test the other 2
-		// generate_music(PLAYER_MOVED);
-	}
+	// 	// player is just moving so 
+	// 	// we'll do that for now and then do and test the other 2
+	// 	// generate_music(PLAYER_MOVED);
+	// }
 	
 	if (diagonal_move){
 		steps_glob = steps_glob + 2; //unbounded steps
@@ -620,12 +545,12 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 	
 	
 	
-	move_terminal_cursor(3,4);
+	move_terminal_cursor(6,4);
 	printf_P(PSTR("Level: %d"), level);
-	move_terminal_cursor(7,5);
+	move_terminal_cursor(6,10);
 	printf_P(PSTR("STEPS: %d"), steps_glob);
-	move_terminal_cursor(0, 0);
-	printf_P(PSTR("Joystick coordinates: x: %d y:%d     "), joy_x, joy_y);
+	// move_terminal_cursor(0, 0);
+	// printf_P(PSTR("Joystick coordinates: x: %d y:%d     "), joy_x, joy_y);
 	// step should keep incrementing 
 	// number_to_display = (number_to_display + 1) % 100; // max steps is 99 on the Seven-segment display
 	

@@ -44,6 +44,7 @@ extern uint8_t new_object_x;
 extern uint8_t new_object_y;
 extern bool target_met;
 extern int undo_capacity;
+extern uint16_t undo_list[6][2];
 extern uint8_t old_player_moves[2];
 
 /// <summary>
@@ -56,7 +57,6 @@ void reset_animation_display(uint8_t new_object_x,  uint8_t new_object_y);
 void wall_message();
 void flash_target_square();
 void get_location_matrix(uint8_t y, uint8_t x);
-void get_location_matrix2(uint8_t y, uint8_t x);
 void undo_move(uint8_t move_made[]);
 /// <summary>
 /// Moves the player based on row and column deltas.
@@ -64,10 +64,8 @@ void undo_move(uint8_t move_made[]);
 /// <param name="delta_row">The row delta.</param>
 /// <param name="delta_col">The column delta.</param>
 void check_surroundings(uint8_t new_object_location);
-void display_terminal_gameplay();
 void reset_cursor_position();
 void flash_terminal_player(uint8_t player_x, uint8_t player_y, uint8_t old_player_x, uint8_t old_player_y);
-void update_terminal_moves(uint8_t object, uint8_t row, uint8_t col);
 bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move);
 
 /// <summary>

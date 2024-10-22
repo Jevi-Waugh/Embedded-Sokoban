@@ -172,11 +172,6 @@ void play_game(void)
 	PORTA &= ~((1 << PD2) | (1 << PD3)) | ((1 << PD4) | (1 << PD5)) | ((1 << PD6) | (1 << PD7)); 
 	PORTA |= (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7);
 	
-	
-	
-	
-
-	display_terminal_gameplay();
 	steps_glob = 0;
 	//bool target_met = false;
 	bool anim_playing = false;
@@ -402,17 +397,17 @@ void play_game(void)
 				move_player(1, -1, true);
 				flash_player();
 			}
-			else if(joy_x > 520 && joy_y < 500){
+			else if(joy_x > 540 && joy_y < 500){
 				// top right
 				move_player(1, 1, true);
 				flash_player();
 			}
-			else if(joy_x < 510 && joy_y > 550){
+			else if(joy_x < 500 && joy_y > 550){
 				// bottom left
 				move_player(-1, -1, true);
 				flash_player();
 			}
-			else if(joy_x < 510 && joy_y < 500){
+			else if(joy_x < 500 && joy_y < 500){
 				// bottom right
 				move_player(-1, 1, true);
 				flash_player();
@@ -422,7 +417,7 @@ void play_game(void)
 				move_player(1, 0, false);
 				flash_player();
 			}
-			else if(joy_x < 510){
+			else if(joy_x < 500){
 				// bottom
 				move_player(-1, 0, false);
 				flash_player();
