@@ -136,7 +136,7 @@ void wall_message(){
 		PSTR("AVOID THE WALLS!")
 	};
 
-	move_terminal_cursor(6,44);
+	move_terminal_cursor(6,43);
 	clear_to_end_of_line();
 	printf_P(messages[message_num]); 
 }
@@ -380,10 +380,6 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 	new_object_location = board[new_object_y][new_object_x]  & OBJECT_MASK;
 
 	
-
-
-
-
 	box_pushed_on_target = false;
 	if (current_object == WALL){
 		wall_message();
@@ -524,14 +520,15 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 	// move_terminal_cursor(6,4);
 	
 	
-	// if (new_object_location != TARGET){
-	// 	clear_to_end_of_line();
-	// 	printf_P(PSTR("You've made a valid move!\n"));
+	if (new_object_location != TARGET){
+		move_terminal_cursor(6,0);
+		clear_to_end_of_line();
+		// printf_P(PSTR("You've made a valid move!\n"));
 		
-	// 	// player is just moving so 
-	// 	// we'll do that for now and then do and test the other 2
-	// 	// generate_music(PLAYER_MOVED);
-	// }
+		// player is just moving so 
+		// we'll do that for now and then do and test the other 2
+		// generate_music(PLAYER_MOVED);
+	}
 	
 	if (diagonal_move){
 		steps_glob = steps_glob + 2; //unbounded steps
@@ -547,7 +544,7 @@ bool move_player(int8_t delta_row, int8_t delta_col, bool diagonal_move)
 	
 	move_terminal_cursor(6,4);
 	printf_P(PSTR("Level: %d"), level);
-	move_terminal_cursor(6,10);
+	move_terminal_cursor(6,15);
 	printf_P(PSTR("STEPS: %d"), steps_glob);
 	// move_terminal_cursor(0, 0);
 	// printf_P(PSTR("Joystick coordinates: x: %d y:%d     "), joy_x, joy_y);

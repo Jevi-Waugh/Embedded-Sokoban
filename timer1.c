@@ -36,6 +36,7 @@ void init_timer1(void)
 
 	// Make pin OC1B be an output (port D, pin 4)
 	DDRD = (1<<4);
+	
 
 	// /* Set up timer/counter  so that it reaches an output compare
 	// ** match every 1 millisecond (1000 times per second) and then
@@ -86,22 +87,25 @@ void stop_tone(){
 
 void generate_music(int type_of_music){
 	
-	music_duration = 50; // in ms
+	music_duration = 100; // in ms
 	// 1. Player being moved
 	// 2. Invalid move
 	// 3. Box pushed
 	
 	if (type_of_music == 1){
 		// Player being moved and enter param
-		set_up_music(200, 2);
+		set_up_music(400, 10);
 	}
 	else if(type_of_music == 2){
-		// Invalid move
+		// BOX_ON_TARGET
 		set_up_music(400, 10);
 	}
 	else if(type_of_music == 3){
 		// Box pushed
 		set_up_music(200, 350);
+		set_up_music(400, 20);
+		set_up_music(300, 3);
+		set_up_music(500, 5);
 	}
 	// start tone here so that way its easier for music debugging
 	if (game_muted == false){

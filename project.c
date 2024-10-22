@@ -117,6 +117,7 @@ void start_screen(void)
 			// breaking out of this loop.
 			if (serial_input == 's' || serial_input == 'S')
 			{
+				TCCR2B |= (0 << CS22) | (1 << CS21) | (1 <<CS20); // Divide clock by 8
 				break;
 			}
 			else if ((serial_input) == '2'){
@@ -194,7 +195,7 @@ void play_game(void)
 		// // adding a one because we cant have o seconds displayed, but not sure if i should or not.
 		
 		if (level_time != last_print_time) {
-			move_terminal_cursor(5,4);
+			move_terminal_cursor(6,26);
             printf_P(PSTR("Time elapsed: %d "), level_time);
 			
             last_print_time = level_time;
@@ -331,8 +332,8 @@ void play_game(void)
 		}
 
 		// DEBUG::
-		move_terminal_cursor(1, 0);
-		printf("<!> shiftpost: %"PRIu32"    %"PRIu32"     ", current_time, last_target_area_flash_time);
+		// move_terminal_cursor(1, 0);
+		// printf("<!> shiftpost: %"PRIu32"    %"PRIu32"     ", current_time, last_target_area_flash_time);
 		// ::DEBUG
 		
 		uint16_t target_x;
@@ -356,8 +357,7 @@ void play_game(void)
 		{
 			// printf_P(PSTR("testing2 %d %d"), new_object_y, new_object_x);
 			// if (new_object_location == TARGET && target_met == true){
-				move_terminal_cursor(23, 0);
-			printf_P(PSTR(" HEY THERE "));
+			move_terminal_cursor(23, 0);
 			get_location_matrix2(target_y, target_x);
 			last_target_area_flash_time = current_time;
 			anim_playing = false;

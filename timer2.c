@@ -34,8 +34,8 @@ void init_timer2(void)
 	OCR2A = 249;
 	TCCR2A = (0 << COM2A1) | (1 << COM2A0)  // Toggle OC2A on compare match
 		| (0 << WGM21) | (0 << WGM20); // Least two significant WGM bits
-	TCCR2B = (1 << WGM22) // Two most significant WGM bits
-		| (0 << CS22) | (1 << CS21) | (1 <<CS20); // Divide clock by 8
+	TCCR2B = (1 << WGM22); // Two most significant WGM bits
+		 // Divide clock by 8
 
 	/* Enable interrupt on timer on output compare match 
 	*/

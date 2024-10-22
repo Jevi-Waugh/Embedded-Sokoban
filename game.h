@@ -57,6 +57,7 @@ void reset_animation_display(uint8_t new_object_x,  uint8_t new_object_y);
 void wall_message();
 void flash_target_square();
 void get_location_matrix(uint8_t y, uint8_t x);
+void get_location_matrix2(uint8_t y, uint8_t x);
 void undo_move(uint8_t move_made[]);
 /// <summary>
 /// Moves the player based on row and column deltas.
