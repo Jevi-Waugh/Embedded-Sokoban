@@ -3,7 +3,7 @@
  *
  * Authors: Peter Sutton, Luke Kamols, Jarrod Bennett, Cody Burnett,
  *          Bradley Stone, Yufeng Gao
- * Modified by: <YOUR NAME HERE>
+ * Modified by: JEVI Waugh
  *
  * Main project event loop and entry point.
  */
@@ -289,33 +289,35 @@ void play_game(void)
 		
 		else if(toupper(serial_input) == 'Z' && steps_glob >= 1){
 			//UNDO MOVE IMPLEMENTATION
-			undo_move(old_player_moves);
+			//undo_move(old_player_moves);
 			reset_cursor_position();
 			clear_to_end_of_line();
-			printf_P(PSTR("x: %d y: %d"), old_player_moves[0],old_player_moves[1]);
+			//printf_P(PSTR("x: %d y: %d"), old_player_moves[0],old_player_moves[1]);
 			// implement where it turns off as there more moves for undo
-			if (undo_capacity >= 1){
-				PORTA &= ~(1 << (undo_capacity-4));
-			}
+			//if (undo_capacity >= 1){
+				//PORTA &= ~(1 << (undo_capacity-4));
+			//}
+			undo_capacity = (undo_capacity + 1) % 6;
+			PORTA &= ~(1 << (undo_capacity+2));
 			
 			
 			
-			int i;
+			//int i;
 			reset_cursor_position();
 			clear_to_end_of_line();
-			if (undo_capacity == 6){
+			//if (undo_capacity == 6){
 				// if we have a full undo list
-				for (i=0; i < 6; i++){
+				//for (i=0; i < 6; i++){
 					// to see if all coordinates actually gets stored.
-					printf_P(PSTR("x: %d, y: %d "), undo_list[i][0], undo_list[i][1]);
-				}
+					//printf_P(PSTR("x: %d, y: %d "), undo_list[i][0], undo_list[i][1]);
+				//}
 				
-			}
+			//}
 			
 		}
-		else if(toupper(serial_input) == 'Z' && steps_glob == 0){
-			printf_P(PSTR("You can't undo steps that you haven't made yet, sorry!"));
-		}
+		//else if(toupper(serial_input) == 'Z' && steps_glob == 0){
+			//printf_P(PSTR("You can't undo steps that you haven't made yet, sorry!"));
+		//}
 		uint32_t current_time = get_current_time();
 		if (current_time >= last_target_flash_time + 500){
 			flash_target_square();

@@ -2,7 +2,7 @@
  * game.c
  *
  * Authors: Jarrod Bennett, Cody Burnett, Bradley Stone, Yufeng Gao
- * Modified by: <YOUR NAME HERE>
+ * Modified by: JEVI Waugh
  *
  * Game logic and state handler.
  */ 
